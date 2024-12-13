@@ -7,6 +7,7 @@ import initRoutes from './routes';
 import logger from "./utils/logger";
 import AppDataSource from "./database/data-source";
 import { initSocketIO } from './lib/socket/gateway.socket';
+import { initRedis } from './shared/redis/redis.service';
 
 const app = express();
 
@@ -25,7 +26,15 @@ AppDataSource.initialize()
     })
 
 initRoutes(app);
-
+// connect redis
+(async () => {
+    try {
+      await initRedis();
+      logger.info('Redis connected successfully');
+    } catch (error) {
+      logger.error('Failed to connect to Redis:', error);
+    }
+  })();
 const { server } = initSocketIO(app);
 
 server.listen(config.PORT, (() => {

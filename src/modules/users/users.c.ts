@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from "express";
-import logger from "../utils/logger";
-import AppDataSource from "../database/data-source";
-import { Role } from "../database/entities/role.entity";
-import { User } from "../database/entities/user.entity";
-import { ROLES } from "../shared/constants/roles.constant";
-import { hash } from "../utils/bcrypt";
-import { RoleGuard } from "../lib/decorators/role-guard.decorator";
-import { UnprocessableEntityException, BadRequestException } from "../lib/exceptions";
+import logger from "../../utils/logger";
+import AppDataSource from "../../database/data-source";
+import { Role } from "../../database/entities/role.entity";
+import { User } from "../../database/entities/user.entity";
+import { ROLES } from "../../shared/constants/roles.constant";
+import { hash } from "../../utils/bcrypt";
+import { RoleGuard } from "../../lib/decorators/role-guard.decorator";
+import { UnprocessableEntityException, BadRequestException } from "../../lib/exceptions";
 
 class UsersController {
     static readonly userRepository = AppDataSource.getRepository(User);

@@ -17,6 +17,7 @@ class Config {
     DB_MAX_CONNECTIONS = process.env.DB_MAX_CONNECTIONS!;
     DB_SSL_ENABLED = process.env.DB_SSL_ENABLED!;
     DB_REJECT_UNAUTHORIZED = process.env.DB_REJECT_UNAUTHORIZED!;
+    REDIS_URL = process.env.REDIS_URL!;
 }
 
 export const config = new Config;

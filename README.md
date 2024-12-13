@@ -46,21 +46,21 @@ docker-compose -f db-compose.yml up -d --build
 ### Migration
 ```bash
 # auto generate migration with entities
-npm run migration:generate
+yarn migration:generate
 
 # run migrations dev
-npm run migration:run:dev
+yarn migration:run:dev
 
 # revert migration:
-npm run migration:revert
+yarn migration:revert
 
 # run migrations production
-npm run migration:run:prod
+yarn migration:run:prod
 ```
 ## Run in local
 ```bash
-npm install
-npm run dev
+yarn install
+yarn dev
 ```
 ## Run with Docker
 ```bash

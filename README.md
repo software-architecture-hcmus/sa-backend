@@ -42,7 +42,12 @@ REDIS_URL=
 ```
 ### Setup PostgreSQL and Redis with Docker
 ```bash
+# Run PostgreSQL and Redis
 docker-compose -f db-compose.yml up -d --build
+
+# Down containers
+docker-compose -f db-compose.yml down
+
 ```
 ### Migration
 ```bash

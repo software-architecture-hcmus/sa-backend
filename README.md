@@ -38,6 +38,7 @@ DB_DATABASE=
 DB_MAX_CONNECTIONS=         # 100
 DB_SSL_ENABLED=             #false
 DB_REJECT_UNAUTHORIZED=     #false
+REDIS_URL=
 ```
 ### Setup PostgreSQL and Redis with Docker
 ```bash

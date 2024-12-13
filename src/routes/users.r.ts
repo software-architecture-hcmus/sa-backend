@@ -4,7 +4,7 @@ const router = express.Router();
 // const upload = multer({ dest: 'src/uploads/' });
 // upload.single('file')
 
-import usersController from '../controllers/users.c';
+import usersController from '../modules/users/users.c';
 
 router.get('/', usersController.getAll);
 router.get('/email', usersController.getUserInformation);

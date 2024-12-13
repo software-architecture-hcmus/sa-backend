@@ -2,20 +2,23 @@
 version: "3.8"
 services:
   postgres:
-    image: postgres:alpine
+    image: postgres
     environment:
-      POSTGRES_DB: database
-      POSTGRES_PASSWORD: admin
-      POSTGRES_USER: 1234
+      POSTGRES_DB: sa_hcmus
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_USER: admin
+      PGDATA: /data/postgres
     ports:
       - 5435:5432
+    volumes:
+      - postgres:/data/postgre
     restart: on-failure:3
   pgweb:
     image: sosedoff/pgweb
     depends_on:
       - postgres
     environment:
-      PGWEB_DATABASE_URL: postgres://admin:1234@postgres:5432/database?sslmode=disable
+      PGWEB_DATABASE_URL: postgres://admin:1234@postgres:5432/sa_hcmus?sslmode=disable
     ports:
       - 8085:8081
     restart: on-failure:3
@@ -42,6 +45,7 @@ services:
     depends_on:
       - redis
 volumes:
+  postgres:
   redis:
   redis-config:
 networks:

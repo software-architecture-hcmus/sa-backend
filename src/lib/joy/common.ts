@@ -36,3 +36,18 @@ export const password = Joi.string()
         "string.pattern.base": "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
         "any.required": "Password is required"
     });
+
+
+// Email validation
+export const email = Joi.string().email().required().messages({
+    "string.base": "Email must be a string",
+    "string.email": "Invalid email address",
+    "any.required": "Email is required"
+});
+
+// Phone validation
+export const phone = Joi.string().regex(/^\+?\d{1,4}[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,4}$/).required().messages({
+    "string.base": "Phone must be a string",
+    "string.pattern.base": "Invalid phone number",
+    "any.required": "Phone is required"
+});

@@ -1,0 +1,1 @@
+export const USER_FIREBASE_COLLECTION = 'users';

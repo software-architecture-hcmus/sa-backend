@@ -27,14 +27,14 @@ AppDataSource.initialize()
 
 initRoutes(app);
 // connect redis
-(async () => {
-    try {
-      await initRedis();
-      logger.info('Redis connected successfully');
-    } catch (error) {
-      logger.error('Failed to connect to Redis:', error);
-    }
-  })();
+// (async () => {
+//     try {
+//       await initRedis();
+//       logger.info('Redis connected successfully');
+//     } catch (error) {
+//       logger.error('Failed to connect to Redis:', error);
+//     }
+//   })();
 const { server } = initSocketIO(app);
 
 server.listen(config.PORT, (() => {

@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { CustomUserRequest } from '../interfaces/request.interface';
+import { ForbiddenException } from '../exceptions/forbidden.exception';
+import { UnauthorizedException } from '../exceptions/unauthorized.exception';
 
 export const RoleGuard = (roles: string[]) => {
     return function (_target: any, _propertyName: string, descriptor: PropertyDescriptor) {
@@ -9,13 +11,13 @@ export const RoleGuard = (roles: string[]) => {
             const _req = req as CustomUserRequest;
 
             if(!_req.user)
-                return res.status(402).json({ message: "Unauthorize" });
+                return _next(new UnauthorizedException({ details: [{ issue: 'Unauthorized' }] }));
 
-            const rolesSetSize = new Set([..._req.user.roles, ...roles]).size;
-            if (rolesSetSize < _req.user.roles.length + roles.length) {
+            const isAuthorized = roles.includes(_req.user.role);
+            if (isAuthorized) {
                 originalMethod.apply(this, arguments);
             } else {
-                return res.status(402).json({ message: "Unauthorize" });
+                return _next(new ForbiddenException({ details: [{ issue: 'Forbidden request' }] }));
             }
         };
     };

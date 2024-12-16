@@ -22,7 +22,7 @@ class UsersController {
         }
     }
 
-    @RoleGuard(['admin'])
+    @RoleGuard([ROLES.ADMIN])
     async create(req: Request, res: Response, next: NextFunction) {
         try {
             const { name, email, password, role } = req.body;
@@ -33,7 +33,7 @@ class UsersController {
                 })
 
             const isUserExists = await firebaseFirestore.collection(USER_FIREBASE_COLLECTION).where('email', '==', email).get();
-            if (isUserExists)
+            if (!isUserExists.empty)
                 throw new BadRequestException({
                     details: [{ issue: "Email already has an account" }]
                 });
@@ -44,18 +44,17 @@ class UsersController {
                 emailVerified: false,
                 disabled: false,
             })
-
-            await firebaseFirestore.collection(USER_FIREBASE_COLLECTION).doc(user.uid).set({
-                email,
-                name,
-                role,
-                status: STATUS.ACTIVE,
-                ...req.body
-            })
+            
+            const userData = {...req.body, status: STATUS.ACTIVE}
+            delete userData.password
+            await firebaseFirestore.collection(USER_FIREBASE_COLLECTION).doc(user.uid).set(userData)
 
             return res.status(200).json({
                 message: "User created successfully",
-                data: user
+                data: {
+                    id: user.uid,
+                    ...userData
+                }
             });
         } catch (error: any) {
             logger.error(error.message);

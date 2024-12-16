@@ -5,7 +5,7 @@ import morgan from 'morgan';
 import { config } from './config/configuration';
 import initRoutes from './routes';
 import logger from "./utils/logger";
-import AppDataSource from "./database/data-source";
+import { DatabaseService } from './database/database.service';
 import { initSocketIO } from './lib/socket/gateway.socket';
 import { initRedis } from './shared/redis/redis.service';
 
@@ -16,7 +16,8 @@ app.use(morgan('dev'));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-AppDataSource.initialize()
+const dbService = DatabaseService.getInstance();
+dbService.initialize()
     .then(() => {
         console.log(`🌟 Postgres connected`);
     })

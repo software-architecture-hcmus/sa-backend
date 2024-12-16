@@ -4,12 +4,12 @@ const router = express.Router();
 
 import usersController from '../modules/users/users.c';
 
-// router.get('/', usersController.getAll);
+router.get('/', usersController.getAll);
 // router.get('/email', usersController.getUserInformation);
 
- router.post('/', usersController.create);
+router.post('/', usersController.create);
 
-// router.patch('/:id/role', usersController.updateRole)
+router.patch('/:id', usersController.update)
 
 // router.delete('/:id', usersController.deleteUser)
 

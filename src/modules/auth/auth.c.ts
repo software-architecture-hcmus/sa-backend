@@ -9,6 +9,9 @@
 // class AuthController {
 //     static readonly userRepository = AppDataSource.getRepository(User);
 
+//     // as we use singleton database, we will init as below (remove the above code)
+//     static readonly userRepository = DatabaseService.getInstance().getRepository(User);
+
 //     async login(req: Request, res: Response, next: NextFunction) {
 //         try {
 //             const { email, password } = req.body;

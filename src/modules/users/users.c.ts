@@ -62,49 +62,52 @@ class UsersController {
         }
     }
 
-    // async updateRole(req: Request, res: Response, next: NextFunction) {
-    //     try {
-    //         const { id } = req.params;
-    //         const { role } = req.body;
-    //         const _role = await UsersController.findOrCreateRole(role);
+    @RoleGuard([ROLES.ADMIN])
+    async getAll(req: Request, res: Response, next: NextFunction) {
+        try {
+            const usersSnapshot = await firebaseFirestore.collection(USER_FIREBASE_COLLECTION).get();
+            const users = usersSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
 
-    //         const user = await UsersController.userRepository.findOne({
-    //             where: {
-    //                 id
-    //             },
-    //             relations: ['roles']
-    //         })
-    //         if (!user)
-    //             throw new BadRequestException({
-    //                 details: [{ issue: "Invalid userId" }]
-    //             });
+            return res.status(200).json({
+                message: "Users retrieved successfully",
+                data: users
+            });
+        } catch (error: any) {
+            logger.error(error.message);
+            next(error);
+        }
+    }
 
-    //         const hasRole = user.roles.filter(userRole => userRole.id === _role.id);
-    //         if (hasRole.length === 0)
-    //             user.roles.push(_role);
+    @RoleGuard([ROLES.ADMIN])
+    async update(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.params;
+            const data = req.body;
 
-    //         await UsersController.userRepository.save(user);
+            const user = await firebaseFirestore.collection(USER_FIREBASE_COLLECTION).doc(id).get();
+            if (!user.exists)
+                throw new BadRequestException({
+                    details: [{ issue: "Invalid userId" }]
+                });
 
-    //         return res.status(200).json(user);
-    //     } catch (error: any) {
-    //         logger.error(error.message);
-    //         next(error);
-    //     }
-    // }
+            await firebaseFirestore.collection(USER_FIREBASE_COLLECTION).doc(id).update(data);
 
-    // @RoleGuard(['admin'])
-    // async getAll(req: Request, res: Response, next: NextFunction) {
-    //     try {
-    //         const users = await UsersController.userRepository.find({
-    //             relations: ['roles']
-    //         })
+            return res.status(200).json({
+                message: "User status updated successfully",
+                data: {
+                    id,
+                    ...data
+                }
+            });
+        } catch (error: any) {
+            logger.error(error.message);
+            next(error);
+        }
+    }
 
-    //         return res.status(200).json(users);
-    //     } catch (error: any) {
-    //         logger.error(error.message);
-    //         next(error);
-    //     }
-    // }
 
     // @RoleGuard(['user', 'admin'])
     // async getUserInformation(req: Request, res: Response, next: NextFunction) {

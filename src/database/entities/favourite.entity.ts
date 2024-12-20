@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm"
 import { AuditableEntity } from "../../lib/entities/auditable.entity"
 import { Event } from "./event.entity"
 
@@ -11,5 +11,6 @@ export class Favourite extends AuditableEntity {
     customer_id: string;
 
     @ManyToOne(() => Event, event => event.id)
+    @JoinColumn({ name: 'event_id' })
     event: Event;
 }

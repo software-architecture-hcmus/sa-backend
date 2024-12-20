@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn } from "typeorm"
 import { AuditableEntity } from "../../lib/entities/auditable.entity"
 import { Voucher } from "./voucher.entity"
 import { Favourite } from "./favourite.entity"
@@ -27,8 +27,10 @@ export class Event extends AuditableEntity {
     brand_id: string;
 
     @OneToMany(() => Voucher, voucher => voucher.id)
+    @JoinColumn({ name: 'event_id' })
     vouchers: Voucher[];
 
     @OneToMany(() => Favourite, favourite => favourite.id)
+    @JoinColumn({ name: 'event_id' })
     favourites: Favourite[];
 }

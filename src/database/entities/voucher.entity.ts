@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Relation } from "typeorm"
 import { AuditableEntity } from "../../lib/entities/auditable.entity"
 import { Event } from "./event.entity"
 
@@ -25,10 +25,10 @@ export class Voucher extends AuditableEntity {
     @Column({type: 'timestamp', nullable: true})
     expiry_date: Date;
 
-    @Column({type: 'text', nullable: false})
+    @Column({type: 'text', nullable: true})
     status: string;
 
-    @ManyToOne(() => Event, event => event.id)
+    @ManyToOne(() => Event, event => event.vouchers)
     @JoinColumn({ name: 'event_id' })
-    event: Event;
+    event: Relation<Event>;
 }

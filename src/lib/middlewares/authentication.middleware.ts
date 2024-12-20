@@ -20,7 +20,8 @@ const authenticationMiddleware = async (req: Request, _res: Response, next: Next
         const user = await firebaseAuth.verifyIdToken(token);
         const userDoc = await firebaseFirestore.collection(USER_FIREBASE_COLLECTION).doc(user.uid).get();
         const userData = {
-            ...userDoc.data()
+            ...userDoc.data(),
+            uid: user.uid,
         } as PayloadUser;
 
         if(userData.status === STATUS.BANNED) {

@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import logger from "../../utils/logger";
 import AppDataSource from "../../database/data-source";
 import { ROLES } from "../../shared/constants/roles.constant";
-import { hash } from "../../utils/bcrypt";
 import { RoleGuard } from "../../lib/decorators/role-guard.decorator";
 import { UnprocessableEntityException, BadRequestException } from "../../lib/exceptions";
 import { firebaseAuth, firebaseFirestore } from "../../utils/firebase";

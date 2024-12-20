@@ -12,6 +12,7 @@ const AppDataSource = new DataSource({
     schema: 'public',
     dropSchema: false,
     synchronize: false,
+    migrationsRun: true,
     logging: config.NODE_ENV !== 'production',
     entities: [__dirname + '/entities/**/*.entity{.ts,.js}'],
     migrations: [__dirname + '/migrations/**/*{.ts,.js}'],

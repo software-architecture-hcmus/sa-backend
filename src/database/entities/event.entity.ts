@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm"
 import { AuditableEntity } from "../../lib/entities/auditable.entity"
 import { Voucher } from "./voucher.entity"
+import { Favourite } from "./favourite.entity"
 
 @Entity()
 export class Event extends AuditableEntity {
@@ -27,4 +28,7 @@ export class Event extends AuditableEntity {
 
     @OneToMany(() => Voucher, voucher => voucher.id)
     vouchers: Voucher[];
+
+    @OneToMany(() => Favourite, favourite => favourite.id)
+    favourites: Favourite[];
 }

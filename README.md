@@ -1,5 +1,13 @@
 # SOFTWARE - ARCHITECTURE - BACKEND
 
+## Database setup
+- After setting up database's config at .env, please run "npm run migration:run:dev" to generate database from migration
+
+## Database migration
+- Create/update entities at src/database/entities
+- Generate auto migration using Typeorm: "npm run migration:generate"
+- Run migration: "npm run migration:run:dev"
+
 A Backend is used to save all user, admin and agent information, implement websocket for play quiz game, so on..
 ## Table of Contents
 - [System requirements](#system-requirements)

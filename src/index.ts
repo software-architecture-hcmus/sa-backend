@@ -7,6 +7,7 @@ import initRoutes from './routes';
 import logger from "./utils/logger";
 import { DatabaseService } from './database/database.service';
 import { initSocketIO } from './lib/socket/gateway.socket';
+import EventStartCron from './lib/cron/EventStartCron';
 import { initRedis } from './shared/redis/redis.service';
 
 const app = express();
@@ -20,6 +21,7 @@ const dbService = DatabaseService.getInstance();
 dbService.initialize()
     .then(() => {
         console.log(`🌟 Postgres connected`);
+        EventStartCron.run();
     })
     .catch(error => {
         logger.error("❌ Connect to database error: " + error.message);

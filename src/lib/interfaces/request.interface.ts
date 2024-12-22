@@ -1,6 +1,6 @@
 import { Request } from "express"
-import { ROLES } from "../../shared/constants/roles.constant";
-import { STATUS } from "../../shared/constants/status.constant";
+import { ROLES } from "../../shared/constants/user-roles.constant";
+import { STATUS } from "../../shared/constants/user-status.constant";
 
 export interface PayloadUser {
     uid: string;

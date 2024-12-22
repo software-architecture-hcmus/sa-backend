@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import logger from "../../utils/logger";
-import { ROLES } from "../../shared/constants/roles.constant";
+import { ROLES } from "../../shared/constants/user-roles.constant";
 import { RoleGuard } from "../../lib/decorators/role-guard.decorator";
 import { CustomUserRequest } from "../../lib/interfaces/request.interface";
 import EventsService from "./events.s";
 
 class EventsController {
 
-    @RoleGuard([ROLES.ADMIN, ROLES.BUSINESS])
+    @RoleGuard([ROLES.ADMIN, ROLES.BUSINESS, ROLES.CUSTOMER])
     async create(req: Request, res: Response, next: NextFunction) {
         try {
             const _req = req as CustomUserRequest;
@@ -25,16 +25,9 @@ class EventsController {
         }
     }
 
-    @RoleGuard([ROLES.ADMIN, ROLES.BUSINESS])
     async getAll(req: Request, res: Response, next: NextFunction) {
         try {
-            const _req = req as CustomUserRequest;
-            const params: any = {};
-            if(_req.user.role === ROLES.BUSINESS) {
-                params.brand_id = _req.user.uid;
-            }
-
-            const events = await EventsService.getAll(params);
+            const events = await EventsService.getAll();
             return res.status(200).json({ data: events });
         } catch (error: any) {
             logger.error(error.message);
@@ -79,6 +72,15 @@ class EventsController {
             next(error);
         }
     }
+    async subscribe(req: Request, res: Response, next: NextFunction) {
+        try {
+            const favourite = await EventsService.subscribe(req.body.event_id, req.body.customer_id);
+            return res.status(200).json({ data: favourite, message: 'Event subscribed successfully' });
+        } catch (error: any) {
+            logger.error(error.message);
+            next(error);
+        }
+    }
 
     @RoleGuard([ROLES.ADMIN, ROLES.BUSINESS])
     async update(req: Request, res: Response, next: NextFunction) {
@@ -113,6 +115,17 @@ class EventsController {
                 message: 'Event updated successfully',
                 data: updatedEvent 
             });
+        }
+        catch (error: any) {
+            logger.error(error.message);
+            next(error);
+        }
+    }
+
+    async unsubscribe(req: Request, res: Response, next: NextFunction) {
+        try {
+            const favourite = await EventsService.unsubscribe(req.body.event_id, req.body.customer_id);
+            return res.status(200).json({ data: favourite, message: 'Event unsubscribed successfully' });
         } catch (error: any) {
             logger.error(error.message);
             next(error);

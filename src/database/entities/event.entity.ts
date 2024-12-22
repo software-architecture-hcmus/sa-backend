@@ -3,6 +3,7 @@ import { AuditableEntity } from "../../lib/entities/auditable.entity"
 import { Voucher } from "./voucher.entity"
 import { Favourite } from "./favourite.entity"
 import { Games } from "./games.entity";
+import { Notification } from "./notification.entity";
 
 @Entity()
 export class Event extends AuditableEntity {
@@ -35,4 +36,7 @@ export class Event extends AuditableEntity {
 
     @OneToMany(() => Games, games => games.id)
     games: Relation<Games>[];
+    @OneToMany(() => Notification, notification => notification.event)
+    @JoinColumn({ name: 'event_id' })
+    notifications: Relation<Notification>[];
 }

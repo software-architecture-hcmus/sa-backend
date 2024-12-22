@@ -10,6 +10,9 @@ router.post('/', uploadSingle('image'), eventsController.create);
 router.get('/:id', eventsController.getById);
 router.delete('/delete/:id', eventsController.delete);
 router.put('/update/:id', uploadSingle('image'), eventsController.update);
+router.post('/', eventsController.create);
+router.post('/subscribe', eventsController.subscribe);
+router.post('/unsubscribe', eventsController.unsubscribe);
 
 // 2 cai duoi co the ko can :))
 // router.patch('/:id', eventsController.update);

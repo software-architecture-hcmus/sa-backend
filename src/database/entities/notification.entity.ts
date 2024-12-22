@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Relation } from "typeorm"
 import { AuditableEntity } from "../../lib/entities/auditable.entity"
 import { Event } from "./event.entity"
 
@@ -12,5 +12,9 @@ export class Notification extends AuditableEntity {
 
     @Column({ type: 'text', nullable: false })
     content: string;
+
+    @ManyToOne(() => Event, event => event.notifications)
+    @JoinColumn({ name: 'event_id' })
+    event: Relation<Event>;
 
 }

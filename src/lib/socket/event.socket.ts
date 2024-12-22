@@ -5,6 +5,8 @@ import Manager from "./roles/manager"
 import Player from "../../modules/player/player.s"
 import { abortCooldown } from "./utils/cooldown"
 import deepClone from "./utils/deepClone"
+import { SOCKET_JOIN_USER_ROOM } from "../../shared/constants/socket-event";
+import logger from "../../utils/logger";
 
 let gameState = deepClone(GAME_STATE_INIT)
 export const initEvents = (io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>) => {
@@ -61,6 +63,11 @@ export const initEvents = (io: Server<DefaultEventsMap, DefaultEventsMap, Defaul
             socket.to(gameState.manager).emit("manager:removePlayer", player.id)
           }
         })
+        socket.on(SOCKET_JOIN_USER_ROOM, (data: {id: string}) => {
+            socket.join(data.id);
+            logger.info(`${socket.id} joined room ${data.id}`);
+        })
+
         socket.on("stream", (data: any) => {
             console.log(data);
             io.emit('stream', data);

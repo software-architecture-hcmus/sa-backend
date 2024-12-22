@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import logger from "../../utils/logger";
-import { ROLES } from "../../shared/constants/roles.constant";
+import AppDataSource from "../../database/data-source";
+import { ROLES } from "../../shared/constants/user-roles.constant";
 import { RoleGuard } from "../../lib/decorators/role-guard.decorator";
 import { UnprocessableEntityException, BadRequestException } from "../../lib/exceptions";
 import { firebaseAuth, firebaseFirestore } from "../../utils/firebase";
 import { USER_FIREBASE_COLLECTION } from "../../shared/constants/user-firebase-collection.constant";
-import { STATUS } from "../../shared/constants/status.constant";
+import { STATUS } from "../../shared/constants/user-status.constant";
 
 class UsersController {
 

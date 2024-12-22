@@ -1,8 +1,10 @@
 import { DatabaseService } from "../../database/database.service";
 import { Event } from "../../database/entities/event.entity";
 import { Voucher } from "../../database/entities/voucher.entity";
-import { Repository } from "typeorm";
 import AzureStorageService from "../../shared/azure/azure-storage.service"
+import NotificationsService from "../notifications/notification.s";
+import { And, LessThanOrEqual, MoreThan, Repository } from "typeorm";
+import FavouritesService from "../favourites/favourite.s";
 
 export class EventsService {
 
@@ -31,13 +33,17 @@ export class EventsService {
         return eventData;
     }
 
-    async getAll(params: any) {
+    async getAll() {
+
         return await this.eventRepository.find({
-            where: params,
+            order: {
+                start: 'DESC',
+            }
         });
     }
 
     async getById(id: string) {
+        //TODO: with relation games (?)
         return await this.eventRepository.findOne({
             where: { id },
             relations: {
@@ -61,6 +67,35 @@ export class EventsService {
         
         // Save the updated entity
         return await this.eventRepository.save(mergedEvent);
+    }
+    async subscribe(event_id: string, customer_id: string) {
+        return await FavouritesService.create({
+            event_id,
+            customer_id,
+        });
+    }
+
+    async unsubscribe(event_id: string, customer_id: string) {
+        return await FavouritesService.removeByEventIdAndCustomerId(event_id, customer_id);
+    }
+
+    async notifyStart(event_id: string) {
+        const event = await this.getById(event_id);
+        if (event) {
+            NotificationsService.notify(event_id, `${event.name} will start in 5 min, join now!`);
+        }
+    }
+
+    async getEventsStartWithin5Minutes() {
+        const now = new Date(); const fiveMinutesLater = new Date(now.getTime() + 5 * 60 * 1000);
+        return await this.eventRepository.find({
+            where: {
+                start: And(
+                    MoreThan(now),
+                    LessThanOrEqual(fiveMinutesLater)
+                ),
+            }
+        });
     }
 
 }

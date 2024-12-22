@@ -1,7 +1,7 @@
 import { DatabaseService } from "../../database/database.service";
 import { Voucher } from "../../database/entities/voucher.entity";
 
-export class VouchersService {
+class VouchersService {
 
     private readonly voucherRepository = DatabaseService.getInstance().getRepository(Voucher);
 
@@ -10,3 +10,5 @@ export class VouchersService {
     }
 
 }
+
+export default new VouchersService();

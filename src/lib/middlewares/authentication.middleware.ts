@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { firebaseAuth, firebaseFirestore } from "../../utils/firebase";
 import { UnauthorizedException } from "../exceptions/unauthorized.exception";
 import { CustomUserRequest, PayloadUser } from "../interfaces/request.interface";
-import { STATUS } from "../../shared/constants/status.constant";
+import { STATUS } from "../../shared/constants/user-status.constant";
 import { USER_FIREBASE_COLLECTION } from "../../shared/constants/user-firebase-collection.constant";
 
 const authenticationMiddleware = async (req: Request, _res: Response, next: NextFunction) => {

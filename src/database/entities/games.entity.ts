@@ -1,8 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, Relation, BeforeInsert, ManyToOne } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, Relation, BeforeInsert, ManyToOne, OneToMany } from "typeorm";
 import { AuditableEntity } from "../../lib/entities/auditable.entity";
 import { StatusGame } from "../enums/game-status.enum";
 import { DefaultGames } from "./default_game.entity";
 import { Event } from "./event.entity"
+import { GameRooms } from "./game_rooms.entity";
 
 
 @Entity()
@@ -25,6 +26,9 @@ export class Games extends AuditableEntity {
     @Column({ type: 'enum', enum: StatusGame, enumName: 'default_games_status_enum' })
     status: StatusGame;
 
+    @Column({type:'boolean', nullable: false, default: false})
+    started: boolean
+
     @ManyToOne(() => Event, event => event.games)
     @JoinColumn({ name: 'event_id' })
     event: Relation<Event>;
@@ -33,6 +37,10 @@ export class Games extends AuditableEntity {
     @JoinColumn({ name: 'default_game_id' })
     default_game: Relation<DefaultGames>;
 
+    @OneToMany(() => GameRooms, game_rooms => game_rooms.id)
+    @JoinColumn({ name: 'game_room_id' })
+    rooms: Relation<GameRooms>[];
+        
     @BeforeInsert()
     setDefaults() {
         this.allow_voucher_exchange = this.allow_voucher_exchange ?? false;

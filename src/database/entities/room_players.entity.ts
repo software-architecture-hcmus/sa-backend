@@ -1,6 +1,7 @@
-import { Entity, Column, ManyToOne, JoinColumn, Relation, PrimaryColumn } from "typeorm"
+import { Entity, Column, ManyToOne, JoinColumn, Relation, PrimaryColumn, OneToMany } from "typeorm"
 import { AuditableEntity } from "../../lib/entities/auditable.entity"
 import { GameRooms } from "./game_rooms.entity";
+import { PlayerAnswers } from "./player_answers.entity";
 
 @Entity()
 export class RoomPlayers extends AuditableEntity {
@@ -17,5 +18,8 @@ export class RoomPlayers extends AuditableEntity {
     @ManyToOne(() => GameRooms, game_room => game_room.room_players)
     @JoinColumn({ name: 'game_room_id' })
     games: Relation<GameRooms>;
+
+    @OneToMany(() => PlayerAnswers, player_answer => player_answer.room_players)
+    player_answer: Relation<PlayerAnswers>[];
 
 }

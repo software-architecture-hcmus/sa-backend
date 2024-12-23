@@ -4,6 +4,7 @@ import { GameResults } from "./game_results.entity";
 import { Games } from "./games.entity";
 import { RoomPlayers } from "./room_players.entity";
 import { QuizQuestions } from "./quiz_questions.entity";
+import { CurrentQuestions } from "./current_questions.entity";
 
 @Entity()
 export class GameRooms extends AuditableEntity {
@@ -27,4 +28,9 @@ export class GameRooms extends AuditableEntity {
     @ManyToOne(() => Games, games => games.rooms)
     @JoinColumn({ name: 'game_id' })
     games: Relation<Games>
+
+    @OneToMany(() => CurrentQuestions, current_questions => current_questions.game_room_id)
+    @JoinColumn({ name: 'game_room_id' })
+    current_questions: Relation<CurrentQuestions>[];
+
 }

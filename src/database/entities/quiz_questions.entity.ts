@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Relation
 import { AuditableEntity } from "../../lib/entities/auditable.entity"
 import { GameRooms } from "./game_rooms.entity";
 import { QuizAnswers } from "./quiz_answers.entity";
+import { CurrentQuestions } from "./current_questions.entity";
 
 @Entity()
 export class QuizQuestions extends AuditableEntity {
@@ -34,4 +35,8 @@ export class QuizQuestions extends AuditableEntity {
     @OneToMany(() => QuizAnswers, quiz_answer => quiz_answer.id)
     @JoinColumn({ name: 'quiz_question_id' })
     answers: Relation<QuizAnswers>[];
+
+    @OneToMany(() => CurrentQuestions, current_questions => current_questions.quiz_question)
+    @JoinColumn({ name: 'quiz_question' })
+    current_questions: Relation<CurrentQuestions>[];
 }

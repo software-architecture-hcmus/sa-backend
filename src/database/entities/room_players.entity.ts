@@ -22,4 +22,5 @@ export class RoomPlayers extends AuditableEntity {
     @OneToMany(() => PlayerAnswers, player_answer => player_answer.room_players)
     player_answer: Relation<PlayerAnswers>[];
 
+
 }

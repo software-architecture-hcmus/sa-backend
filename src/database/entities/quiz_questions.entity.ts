@@ -4,6 +4,7 @@ import { GameRooms } from "./game_rooms.entity";
 import { QuizAnswers } from "./quiz_answers.entity";
 import { CurrentQuestions } from "./current_questions.entity";
 
+
 @Entity()
 export class QuizQuestions extends AuditableEntity {
     @PrimaryGeneratedColumn('uuid')

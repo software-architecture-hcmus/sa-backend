@@ -32,5 +32,4 @@ export class GameRooms extends AuditableEntity {
     @OneToMany(() => CurrentQuestions, current_questions => current_questions.game_room_id)
     @JoinColumn({ name: 'game_room_id' })
     current_questions: Relation<CurrentQuestions>[];
-
 }

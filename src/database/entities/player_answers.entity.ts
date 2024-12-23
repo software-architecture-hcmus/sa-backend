@@ -2,7 +2,6 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Relation
 import { AuditableEntity } from "../../lib/entities/auditable.entity"
 import { QuizAnswers } from "./quiz_answers.entity";
 import { RoomPlayers } from "./room_players.entity";
-
 @Entity()
 export class PlayerAnswers extends AuditableEntity {
     @PrimaryGeneratedColumn('uuid')

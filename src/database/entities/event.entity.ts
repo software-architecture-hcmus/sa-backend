@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, Relation
 import { AuditableEntity } from "../../lib/entities/auditable.entity"
 import { Voucher } from "./voucher.entity"
 import { Favourite } from "./favourite.entity"
+import { Games } from "./games.entity";
 
 @Entity()
 export class Event extends AuditableEntity {
@@ -33,4 +34,8 @@ export class Event extends AuditableEntity {
     @OneToMany(() => Favourite, favourite => favourite.id)
     @JoinColumn({ name: 'event_id' })
     favourites: Relation<Favourite>[];
+
+    @OneToMany(() => Games, games => games.id)
+    @JoinColumn({ name: 'event_id' })
+    games: Relation<Games>[];
 }

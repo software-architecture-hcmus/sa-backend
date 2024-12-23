@@ -12,14 +12,14 @@ export const sort = Joi.string().valid("desc", "asc");
 // Username validation
 export const username = Joi.string()
     .alphanum() // Only alphanumeric characters (letters and numbers)
-    .min(3) // Minimum length of 3 characters
-    .max(30) // Maximum length of 30 characters
+    .min(4) // Minimum length of 4 characters
+    .max(20) // Maximum length of 20 characters
     .required() // Username is required
     .messages({
         "string.base": "Username must be a string",
         "string.alphanum": "Username must only contain alphanumeric characters",
-        "string.min": "Username must be at least 3 characters long",
-        "string.max": "Username can be up to 30 characters long",
+        "string.min": "Username cannot be less than 4 characters",
+        "string.max": "Username cannot exceed 20 characters",
         "any.required": "Username is required"
     });
 
@@ -51,3 +51,12 @@ export const phone = Joi.string().regex(/^\+?\d{1,4}[-.\s]?\(?\d{1,4}\)?[-.\s]?\
     "string.pattern.base": "Invalid phone number",
     "any.required": "Phone is required"
 });
+
+// inviteCode validation
+export const inviteCode = Joi.string()
+    .length(6)
+    .required()
+    .messages({
+        "any.required":"Invite code is required",
+        "string.length": "Invalid invite code"
+    })

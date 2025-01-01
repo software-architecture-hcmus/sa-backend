@@ -13,6 +13,9 @@ export class GameRooms extends AuditableEntity {
 
     @Column({type:'text', nullable:true})
     invite_code: string
+    
+    @Column({ type: 'uuid' })
+    game_id: string;
 
     @OneToMany(() => GameResults, game_results => game_results.id)
     @JoinColumn({ name: 'game_room_id' })

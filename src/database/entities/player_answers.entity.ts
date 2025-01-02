@@ -9,7 +9,8 @@ export class PlayerAnswers extends AuditableEntity {
 
     @Column({ type: 'text', nullable: false })
     time: string;
-    @Column({ type: 'number', nullable: true, default: 0 })
+
+    @Column({ type: 'numeric', nullable: true, default: 0 })
     point:number
 
     @ManyToOne(() => QuizAnswers, quiz_answer => quiz_answer.player_answer)

@@ -2,7 +2,6 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Relation
 import { AuditableEntity } from "../../lib/entities/auditable.entity"
 import { QuizAnswers } from "./quiz_answers.entity";
 import { RoomPlayers } from "./room_players.entity";
-
 @Entity()
 export class PlayerAnswers extends AuditableEntity {
     @PrimaryGeneratedColumn('uuid')
@@ -10,6 +9,9 @@ export class PlayerAnswers extends AuditableEntity {
 
     @Column({ type: 'text', nullable: false })
     time: string;
+
+    @Column({ type: 'numeric', nullable: true, default: 0 })
+    point:number
 
     @ManyToOne(() => QuizAnswers, quiz_answer => quiz_answer.player_answer)
     @JoinColumn({ name: 'answer' })

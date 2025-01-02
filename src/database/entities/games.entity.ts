@@ -28,7 +28,7 @@ export class Games extends AuditableEntity {
 
     @Column({type:'boolean', nullable: false, default: false})
     started: boolean
-
+    
     @ManyToOne(() => Event, event => event.games)
     @JoinColumn({ name: 'event_id' })
     event: Relation<Event>;

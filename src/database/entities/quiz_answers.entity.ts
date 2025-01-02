@@ -16,6 +16,5 @@ export class QuizAnswers extends AuditableEntity {
     question: Relation<QuizQuestions>;
 
     @OneToMany(() => PlayerAnswers, player_answer => player_answer.answer)
-    @JoinColumn({ name: 'answer' })
     player_answer: Relation<PlayerAnswers>[];
 }

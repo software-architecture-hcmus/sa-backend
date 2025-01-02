@@ -28,14 +28,11 @@ export class Event extends AuditableEntity {
     brand_id: string;
 
     @OneToMany(() => Voucher, voucher => voucher.event)
-    @JoinColumn({ name: 'event_id' })
     vouchers: Relation<Voucher>[];
 
     @OneToMany(() => Favourite, favourite => favourite.id)
-    @JoinColumn({ name: 'event_id' })
     favourites: Relation<Favourite>[];
 
     @OneToMany(() => Games, games => games.id)
-    @JoinColumn({ name: 'event_id' })
     games: Relation<Games>[];
 }

@@ -29,8 +29,7 @@ export class DefaultGames extends AuditableEntity {
     @JoinColumn({ name: 'type_id' }) // type_id làm khóa ngoại
     game_type: Relation<GameTypes>;
 
-    @OneToMany(() => Games, games => games.id)
-    @JoinColumn({ name: 'default_game_id' })
+    @OneToMany(() => Games, games => games.default_game)
     games: Relation<Games>[];
 
     @BeforeInsert()

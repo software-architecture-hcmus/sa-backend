@@ -32,11 +32,9 @@ export class QuizQuestions extends AuditableEntity {
     @JoinColumn({ name: 'solution' })
     solution: Relation<QuizAnswers>;
 
-    @OneToMany(() => QuizAnswers, quiz_answer => quiz_answer.id)
-    @JoinColumn({ name: 'quiz_question_id' })
+    @OneToMany(() => QuizAnswers, quiz_answer => quiz_answer.question)
     answers: Relation<QuizAnswers>[];
 
     @OneToMany(() => CurrentQuestions, current_questions => current_questions.quiz_question)
-    @JoinColumn({ name: 'quiz_question' })
     current_questions: Relation<CurrentQuestions>[];
 }

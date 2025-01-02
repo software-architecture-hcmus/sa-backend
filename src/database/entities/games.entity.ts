@@ -38,12 +38,10 @@ export class Games extends AuditableEntity {
     @JoinColumn({ name: 'default_game_id' })
     default_game: Relation<DefaultGames>;
 
-    @OneToMany(() => GameRooms, game_rooms => game_rooms.id)
-    @JoinColumn({ name: 'game_room_id' })
+    @OneToMany(() => GameRooms, game_rooms => game_rooms.games)
     rooms: Relation<GameRooms>[];
     
-    @OneToMany(() => GameTurns, game_turn => game_turn.id)
-    @JoinColumn({ name: 'game_turn_id' })
+    @OneToMany(() => GameTurns, game_turn => game_turn.games)
     game_turn: Relation<GameTurns>[];
 
     @BeforeInsert()

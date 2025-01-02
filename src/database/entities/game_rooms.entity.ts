@@ -17,22 +17,19 @@ export class GameRooms extends AuditableEntity {
     @Column({ type: 'uuid' })
     game_id: string;
 
-    @OneToMany(() => GameResults, game_results => game_results.id)
-    @JoinColumn({ name: 'game_room_id' })
+    @OneToMany(() => GameResults, game_results => game_results.game_room)
     results: Relation<GameResults>[];
 
     @OneToMany(() => RoomPlayers, room_player => room_player.games)
     room_players: RoomPlayers[];
 
-    @OneToMany(() => QuizQuestions, quiz_questions => quiz_questions.id)
-    @JoinColumn({ name: 'game_room_id' })
+    @OneToMany(() => QuizQuestions, quiz_questions => quiz_questions.games)
     questions: Relation<QuizQuestions>[];
 
     @ManyToOne(() => Games, games => games.rooms)
     @JoinColumn({ name: 'game_id' })
     games: Relation<Games>
 
-    @OneToMany(() => CurrentQuestions, current_questions => current_questions.game_room_id)
-    @JoinColumn({ name: 'game_room_id' })
+    @OneToMany(() => CurrentQuestions, current_questions => current_questions.rooms)
     current_questions: Relation<CurrentQuestions>[];
 }

@@ -19,6 +19,10 @@ export interface PayloadUser {
     gps_long?: string;
 }
 
+export interface CreateGameRequest {
+    
+} 
+
 export interface CustomUserRequest extends Request {
     user: PayloadUser
 };

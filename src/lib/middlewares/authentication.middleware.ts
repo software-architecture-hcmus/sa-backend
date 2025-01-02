@@ -11,7 +11,6 @@ const authenticationMiddleware = async (req: Request, _res: Response, next: Next
     const _req = req as CustomUserRequest;
     const authorization: string | undefined = req.header('Authorization');
     const token = authorization?.split(' ')[1];
-
     if (!token) {
         return next(new UnauthorizedException({ details: [{ issue: 'Unauthorized' }] }));
     }

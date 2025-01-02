@@ -9,7 +9,17 @@ import GameService from "./game.s";
 class GameController {
     async getById(req: Request, res: Response, next: NextFunction) {
         try {
-            return res.status(200).json({ data: "getById" });
+            const game = await GameService.getById(req.params.id);
+            return res.status(200).json({ data: game });
+        } catch (error: any) {
+            logger.error(error.message);
+            next(error);
+        }
+    }
+    async getAll(req: Request, res: Response, next: NextFunction) {
+        try {
+            const games = await GameService.getAll();
+            return res.status(200).json({ data: games });
         } catch (error: any) {
             logger.error(error.message);
             next(error);
@@ -35,14 +45,15 @@ class GameController {
                 event,
                 brand_id
             };
+            let game;
             if (type === "QUIZ") {
                 createGameData["questions"] = req.body.questions;
-                GameService.createGameQuiz(createGameData);
+                game = await GameService.createGameQuiz(createGameData);
             } else if (type === "FLAPPYBIRD") {
                 createGameData["play_count"] = req.body.play_count;
-                GameService.createGameFlappyBird(createGameData);
+                game = await GameService.createGameFlappyBird(createGameData);
             }
-            return res.status(201).json({ data: "createGame" });
+            return res.status(201).json({ data: game });
         } catch (error: any) {
             logger.error(error.message);
             next(error);

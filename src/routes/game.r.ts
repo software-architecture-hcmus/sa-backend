@@ -4,6 +4,7 @@ const router = express.Router();
 
 import gameController from "../modules/game/game.c";
 router.get('/', gameController.getById);
+router.get('/default', gameController.getDefault);
 router.post('/', gameController.createGame);
 router.post('/:id', gameController.saveResult);
 router.post('/quiz/question', gameController.createQuestion)

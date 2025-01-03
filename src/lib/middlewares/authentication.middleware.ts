@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { firebaseAuth } from "../../utils/firebase";
+import { firebaseAuth, firebaseFirestore } from "../../utils/firebase";
 import { UnauthorizedException } from "../exceptions/unauthorized.exception";
 import { CustomUserRequest, PayloadUser } from "../interfaces/request.interface";
-import { firebaseFirestore } from "../../utils/firebase";
 import { STATUS } from "../../shared/constants/status.constant";
 import { USER_FIREBASE_COLLECTION } from "../../shared/constants/user-firebase-collection.constant";
 

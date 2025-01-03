@@ -2,6 +2,7 @@ import { DatabaseService } from "../../database/database.service";
 import { Event } from "../../database/entities/event.entity";
 import { Voucher } from "../../database/entities/voucher.entity";
 import { Repository } from "typeorm";
+import AzureStorageService from "../../shared/azure/azure-storage.service"
 
 export class EventsService {
 
@@ -43,6 +44,23 @@ export class EventsService {
                 vouchers: true,
             }
         });
+    }
+
+    async softDelete(id: string) {
+        return await this.eventRepository.softDelete(id);
+    }
+
+    async update(id: string, updateData: Partial<Event>) {
+        const existingEvent = await this.eventRepository.findOneBy({ id });
+        
+        if (updateData.image && existingEvent?.image) {
+            AzureStorageService.deleteFile(existingEvent?.image);
+        }
+
+        const mergedEvent = this.eventRepository.merge(existingEvent!, updateData);
+        
+        // Save the updated entity
+        return await this.eventRepository.save(mergedEvent);
     }
 
 }

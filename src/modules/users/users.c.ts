@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import logger from "../../utils/logger";
-import AppDataSource from "../../database/data-source";
 import { ROLES } from "../../shared/constants/roles.constant";
 import { RoleGuard } from "../../lib/decorators/role-guard.decorator";
 import { UnprocessableEntityException, BadRequestException } from "../../lib/exceptions";
@@ -107,6 +106,36 @@ class UsersController {
         }
     }
 
+    async refreshToken(req: Request, res: Response, next: NextFunction) {
+        try {
+            const refreshToken = req.body.refreshToken;
+            
+            if (!refreshToken) {
+                throw new BadRequestException({
+                    details: [{ issue: "Refresh token is required" }]
+                });
+            }
+
+            const decodedToken = await firebaseAuth.verifyIdToken(refreshToken);
+            const userRecord = await firebaseAuth.getUser(decodedToken.uid);
+            
+            if (!userRecord) {
+                throw new BadRequestException({
+                    details: [{ issue: "User not found" }]
+                });
+            }
+
+            const customToken = await firebaseAuth.createCustomToken(userRecord.uid);
+
+            return res.status(200).json({
+                message: "Token refreshed successfully",
+                data: { customToken }
+            });
+        } catch (error: any) {
+            logger.error(error.message);
+            next(error);
+        }
+    }
 
     // @RoleGuard(['user', 'admin'])
     // async getUserInformation(req: Request, res: Response, next: NextFunction) {

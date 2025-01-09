@@ -38,8 +38,16 @@ class GameService {
         });
     }
 
-    async getAll() {
-        return await this.gameRepository.find();
+    async getAll({ branch_id } : {branch_id: string}) {
+        return await this.gameRepository.find(
+            {
+                where:{
+                    event:{
+                        brand_id:branch_id
+                    }
+                }
+            }
+        );
     }
 
     async createGameQuiz( createGameData: any) {

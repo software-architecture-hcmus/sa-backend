@@ -20,14 +20,11 @@ export const initEvents = (io: Server<DefaultEventsMap, DefaultEventsMap, Defaul
           Player.join(io, socket, player, gameID),
         )
       
-        socket.on("manager:createRoom", (password) =>
-          Manager.createRoom(gameState, io, socket, password),
-        )
         socket.on("manager:kickPlayer", (playerId) =>
           Manager.kickPlayer(gameState, io, socket, playerId),
         )
       
-        socket.on("manager:startGame", () => Manager.startGame(gameState, io, socket))
+        socket.on("manager:startGame", (id) => Manager.startGame(io, socket, id))
       
         socket.on("player:selectedAnswer", (answerKey, gameID, playerID, roundStartTime) =>
           Player.selectedAnswer(io, socket, answerKey, gameID, playerID, roundStartTime),

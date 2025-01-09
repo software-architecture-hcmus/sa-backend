@@ -3,6 +3,7 @@ import { AuditableEntity } from "../../lib/entities/auditable.entity"
 import { GameRooms } from "./game_rooms.entity";
 import { QuizAnswers } from "./quiz_answers.entity";
 import { CurrentQuestions } from "./current_questions.entity";
+import { PlayerAnswers } from "./player_answers.entity";
 
 @Entity()
 export class QuizQuestions extends AuditableEntity {
@@ -37,4 +38,7 @@ export class QuizQuestions extends AuditableEntity {
 
     @OneToMany(() => CurrentQuestions, current_questions => current_questions.quiz_question)
     current_questions: Relation<CurrentQuestions>[];
+
+    @OneToMany(()=> PlayerAnswers, player_answer => player_answer.questions)
+    player_answer: Relation<PlayerAnswers[]>;
 }

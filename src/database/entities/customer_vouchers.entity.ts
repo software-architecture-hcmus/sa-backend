@@ -22,4 +22,7 @@ export class CustomerVoucher extends AuditableEntity {
 
     @OneToMany(() => Transaction, transaction => transaction.customer_voucher)
     transactions: Relation<Transaction>[];
+
+    @Column({type: 'boolean', nullable: true})
+    code: string;
 }

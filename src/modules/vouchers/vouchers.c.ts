@@ -45,7 +45,8 @@ class VoucherController {
 
     async acceptVoucher(req: Request, res:Response, next: NextFunction) {
         const _req = req as CustomUserRequest;
-        const userID = "5WNJfnPfQcPZYMliKu51APahj9o2";
+        // const userID = "5WNJfnPfQcPZYMliKu51APahj9o2";
+        const userID = _req.user?.uid;
         const {ga_token} = _req.query as {ga_token: string};
         if (!userID || !ga_token) {
             return next(new Error("Invalid data"));
@@ -75,8 +76,8 @@ class VoucherController {
             }
 
             const customerVoucher = transactionEntity.customer_voucher;
-            if (!customerVoucher) {
-                return next(new Error("Customer voucher not found"));
+            if (!customerVoucher || customerVoucher.code) {
+                return next(new Error("Customer voucher not found or voucher was claimed"));
             }
 
             //If everything ok, begin transaction

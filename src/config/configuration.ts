@@ -3,7 +3,7 @@ dotenv.config();
 
 class Config {
     PORT = +process.env.PORT! || 8000;
-
+    FRONTEND_CUSTOMER_URL=process.env.FRONTEND_CUSTOMER_URL;
     JWT_SECRET_KEY = process.env.JWT_SECRET_KEY!;
 
     NODE_ENV = process.env.NODE_ENV!;
@@ -18,6 +18,11 @@ class Config {
     DB_SSL_ENABLED = process.env.DB_SSL_ENABLED!;
     DB_REJECT_UNAUTHORIZED = process.env.DB_REJECT_UNAUTHORIZED!;
     REDIS_URL = process.env.REDIS_URL!;
+
+    NODEMAILER_HOST = process.env.NODEMAILER_HOST!;
+    NODEMAILER_PORT = process.env.NODEMAILER_PORT!;
+    NODEMAILER_EMAIL = process.env.NODEMAILER_EMAIL!;
+    NODEMAILER_PASSWORD = process.env.NODEMAILER_PASSWORD!;
 }
 
 export const config = new Config;

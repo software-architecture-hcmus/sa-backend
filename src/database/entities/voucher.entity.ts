@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Relation
 import { AuditableEntity } from "../../lib/entities/auditable.entity"
 import { Event } from "./event.entity"
 import { CustomerVoucher } from "./customer_vouchers.entity";
+import { VoucherCode } from "./voucher_codes.entity";
 
 @Entity()
 export class Voucher extends AuditableEntity {
@@ -35,4 +36,7 @@ export class Voucher extends AuditableEntity {
 
     @OneToMany(() => CustomerVoucher, customerVoucher => customerVoucher.voucher)
     customer_vouchers: Relation<CustomerVoucher>[];
+
+    @OneToMany(() => VoucherCode, voucherCode => voucherCode.voucher)
+    voucher_codes: Relation<VoucherCode>[];
 }

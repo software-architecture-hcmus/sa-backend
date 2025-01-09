@@ -29,6 +29,12 @@ class CustomerVoucherService {
         }
 
         const customer_voucher = await this.customerVoucherRepository.findOne({ where: { id: customer_voucher_id } }) ?? undefined;
+        if (!customer_voucher || customer_voucher.code) {
+            return {
+                ok: false,
+                message: "Cannot find voucher or voucher was claimed",
+            }
+        }
 
         const token = crypto.randomUUID();
 

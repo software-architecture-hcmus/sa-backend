@@ -28,7 +28,8 @@ class GameService {
                 default_game: true,
                 rooms: {
                     questions:{
-                        answers: true
+                        answers: true,
+                        solution: true
                     }
                 },
                 event: true,

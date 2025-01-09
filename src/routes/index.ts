@@ -9,6 +9,7 @@ import users from './users.r';
 import events from './events.r';
 import game from './game.r';
 import business from './business.r';
+import voucher from './voucher.r'
 import { API_VERSION } from "../shared/constants/api-version.constant";
 
 const initRoutes = async (app: Express) => {
@@ -18,6 +19,7 @@ const initRoutes = async (app: Express) => {
     app.use(`/api/${API_VERSION.V1}/events`, events);
     app.use(`/api/${API_VERSION.V1}/games`, game);
     app.use(`/api/${API_VERSION.V1}/business`, business);
+    app.use(`/api/${API_VERSION.V1}/vouchers`, voucher);
     app.use('*', notFoundMiddleware);
     app.use(filterExceptionMiddleware);
 }

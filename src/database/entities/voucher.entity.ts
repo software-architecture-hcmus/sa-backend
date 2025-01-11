@@ -9,12 +9,6 @@ export class Voucher extends AuditableEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ type: 'text', nullable: false })
-    code: string;
-
-    @Column({ type: 'text', nullable: true })
-    qr_code: string;
-
     @Column({ type: 'text', nullable: true })
     image: string;
 

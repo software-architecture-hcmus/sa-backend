@@ -6,6 +6,9 @@ import UserService from "../users/users.s";
 import { TripleStatus } from "../../database/enums/triple-status.enum";
 import { sendEmail } from "../../utils/nodeMailer";
 import { config } from "../../config/configuration";
+import { VoucherCode } from "../../database/entities/voucher_codes.entity";
+import AppDataSource from "../../database/data-source";
+import { Voucher } from "../../database/entities/voucher.entity";
 
 class CustomerVoucherService {
     private readonly customerVoucherRepository = DatabaseService.getInstance().getRepository(CustomerVoucher);
@@ -45,7 +48,7 @@ class CustomerVoucherService {
                 <p style="color: #666;">${sender.name} has sent you a voucher through our platform.</p>
                 <p style="color: #666;">To accept this voucher, please click the button below:</p>
                 <div style="text-align: center; margin: 30px 0;">
-                    <a href="${config.FRONTEND_CUSTOMER_URL}/accept-voucher?ga_token=${token}" 
+                    <a href="${config.FRONTEND_CUSTOMER_URL}/receive-give-away?ga_token=${token}" 
                        style="background-color: #4CAF50; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px;">
                         Accept Voucher
                     </a>
@@ -79,6 +82,65 @@ class CustomerVoucherService {
         return {
             ok: true,
             message: "SUCCESS",
+        }
+    }
+    
+    async useVoucher(customer_voucher_id: string, voucher_id: string) {
+        const queryRunner = AppDataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+
+        try {
+            const voucherCode = await queryRunner.manager.findOne(VoucherCode, {
+                where: { voucher: { id: voucher_id }, isClaimed: false }
+            });
+
+            if (!voucherCode) {
+                await queryRunner.rollbackTransaction();
+                return {
+                    ok: false,
+                    message: "Voucher are out of stock"
+                };
+            }
+
+            voucherCode.isClaimed = true;
+            await queryRunner.manager.save(voucherCode);
+
+            const customerVoucher = await this.customerVoucherRepository.findOne({ where: { id: customer_voucher_id } });
+            if (!customerVoucher) {
+                await queryRunner.rollbackTransaction();
+                return {
+                    ok: false,
+                    message: "Customer voucher not found"
+                };
+            }
+
+            customerVoucher.code = voucherCode.code;
+            await queryRunner.manager.save(customerVoucher);
+
+            const transactions = await this.transactionRepository.find({ where: { customer_voucher: {id: customer_voucher_id}, status: TripleStatus.PENDING } });
+            for (const transaction of transactions) {
+                transaction.status = TripleStatus.REJECTED;
+                transaction.transaction_time = new Date();
+                await queryRunner.manager.save(transaction);
+            }
+
+            await queryRunner.commitTransaction();
+            return {
+                ok: true,
+                data: {
+                    voucher: customerVoucher,
+                },
+                message: "Voucher used successfully"
+            };
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+            return {
+                ok: false,
+                message: "Error using voucher"
+            };
+        } finally {
+            await queryRunner.release();
         }
     }
 }

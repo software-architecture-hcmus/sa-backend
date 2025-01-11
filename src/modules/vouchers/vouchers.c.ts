@@ -145,6 +145,53 @@ class VoucherController {
             next(error);
         }
     }
+
+    async useCustomerVoucher(req: Request, res: Response, next: NextFunction) {
+        const _req = req as CustomUserRequest;
+        const customer_id = _req.user.uid;
+        const customer_voucher_id = _req.body.customer_voucher_id;
+        
+        if (!customer_voucher_id || !customer_id) {
+            return res.status(400).json({
+                ok: false,
+                message: "Invalid data",
+            });
+        }
+
+        try {
+            const customerVoucher = await AppDataSource.getRepository(CustomerVoucher).findOne({
+                where: { id: customer_voucher_id, customer_id: customer_id },
+                relations: ['voucher'],
+            });
+
+            if (!customerVoucher) {
+                return res.status(404).json({
+                    ok: false,
+                    message: "Customer voucher not found",
+                });
+            }
+
+            if (customerVoucher.code) {
+                return res.status(400).json({
+                    ok: false,
+                    message: "Voucher is used",
+                });
+            }
+
+            const rs = await CustomerVoucherService.useVoucher(customer_voucher_id, customerVoucher.voucher.id);
+
+            if (rs.ok) {
+                return res.status(200).json(rs);
+            }
+            else {
+                return res.status(400).json(rs);
+            }
+        } catch (error) {
+            console.log(error);
+            next(error);
+        }
+
+    }
 }
 
 export default new VoucherController;

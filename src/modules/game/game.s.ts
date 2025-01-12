@@ -187,7 +187,10 @@ class GameService {
             where:{
                 event: {
                     id: id
-                }
+                },
+            },
+            relations:{
+                default_game: true
             }
         })
     }

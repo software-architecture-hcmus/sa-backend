@@ -30,7 +30,7 @@ class Manager {
     this.playerAnswersRepository = DatabaseService.getInstance().getRepository(PlayerAnswers);
   }
 
-  async startGame(io, socket, id) {
+  async startGame(io, socket, id, playersS) {
 
     const gameData = await this.gameRepository.findOne({
       where: {
@@ -52,9 +52,7 @@ class Manager {
     })
     if (!gameData || gameData.started) {
       return;
-    }
-    socket.join(id);
-    
+    }    
     const currentQuestion = gameData?.rooms[0]?.current_questions;
     if (!currentQuestion || currentQuestion.length === 0) {
       gameData['currentQuestion'] = gameData.rooms[0].questions.find(question => question.position === 0);
@@ -84,21 +82,37 @@ class Manager {
     }
 
     delete gameData.rooms;
-    io.to(id).emit("game:status", {
+    const playersSockets = playersS.get(`players-${id}`);
+    socket.emit("game:status", {
       name: "SHOW_START",
       data: {
         time: 3,
         subject: "Start game",
       },
     })
+    for(const playersSocket of playersSockets)
+      {
+        io.to(playersSocket).emit("game:status", {
+          name: "SHOW_START",
+          data: {
+            time: 3,
+            subject: "Start game",
+          },
+        })
+      }
+    
 
     await sleep(3)
-    io.to(id).emit("game:startCooldown")
+    socket.emit("game:startCooldown")
+    for(const playersSocket of playersSockets)
+      {
+        io.to(playersSocket).emit("game:startCooldown")
+      }
 
-    await cooldown(3, io, id)
+    await cooldown(3, io, id, playersSockets, socket )
     gameData.started = true;
     // TODO: update started to database
-    startRound(gameData, io, socket, id)
+    startRound(gameData, io, socket, id, playersSockets)
   };
 
   kickPlayer(game, io, socket, playerId) {
@@ -176,6 +190,15 @@ class Manager {
         }
       }
     })
+  }
+  async joinRoom(io, socket, id, manager)
+  {
+    const key = `manager-${id.id}`;
+    const existingSockets = manager.get(key) || [];
+    if (!existingSockets.includes(socket.id)) {
+      manager.set(key, [...existingSockets, socket.id]);
+  }
+    socket.join(id);
   }
 }
 

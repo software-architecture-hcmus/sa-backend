@@ -11,6 +11,7 @@ import { PlayerAnswers } from "../../database/entities/player_answers.entity";
 import { GameRooms } from '../../database/entities/game_rooms.entity';
 import { GameResults } from "../../database/entities/game_results.entity";
 import { CurrentQuestions } from "../../database/entities/current_questions.entity";
+import { username } from '../../lib/joy/common';
 
 export class Player {
   private readonly gamesRepository: Repository<Games>;
@@ -33,37 +34,25 @@ export class Player {
     this.currentQuestionsRepository = DatabaseService.getInstance().getRepository(CurrentQuestions);
   }
 
-  async checkRoom(io: any, socket: any, roomId: string, gameId: string): Promise<void> {
-    try {
-      await inviteCodeValidator.validate(roomId);
-    } catch (error) {
-      socket.emit("game:errorMessage", error?.errors[0]);
-      return;
-    }
-    const gameRoom = await this.gameRoomsRepository.findOne({ where: { game_id: gameId } });
-    if (!gameRoom) {
-      socket.emit("game:errorMessage", "Room not found");
-      return;
-    }
-
-    socket.emit("game:successRoom", roomId);
-  }
-
-  async join(io: any, socket: any, player: any, gameId: string): Promise<void> {
+  async join(io: any, socket: any, player: any, manager, players): Promise<void> {
+    socket.join(player.gameID);
     try {
       await usernameValidator.validate(player.username);
     } catch (error) {
       socket.emit("game:errorMessage", error?.errors[0]);
+      socket.leave(player.gameID);
       return;
     }
-    const game = await this.gamesRepository.findOne({ where: { id: gameId } });
+    const game = await this.gamesRepository.findOne({ where: { id: player.gameID } });
     if (!game) {
       socket.emit("game:errorMessage", "Game not found");
+      socket.leave(player.gameID);
       return;
     }
-    const gameRoom = await this.gameRoomsRepository.findOne({ where: { game_id: gameId } });
-    if (!gameRoom || player.room !== gameRoom.id) {
+    const gameRoom = await this.gameRoomsRepository.findOne({ where: { game_id: player.gameID } });
+    if (!gameRoom) {
       socket.emit("game:errorMessage", "Room not found");
+      socket.leave(player.gameID);
       return;
     }
 
@@ -71,32 +60,48 @@ export class Player {
 
     if (roomPlayer) {
       socket.emit("game:errorMessage", "Username already exists");
+      socket.leave(player.gameID);
+
       return;
     }
 
     if (game.started) {
       socket.emit("game:errorMessage", "Game already started");
+      socket.leave(player.gameID);
+
       return;
     }
 
     console.log("New Player", player);
-
-    socket.join(player.room);
-
     const playerData = {
       username: player.username,
-      room: player.room,
+      room: player.gameID,
       id: socket.id,
       points: 0,
     };
-    socket.to(player.room).emit("manager:newPlayer", { ...playerData });
+    const key = `players-${player.gameID}`;
+    const existingSockets = players.get(key) || [];
+    
+    if (!existingSockets.includes(socket.id)) {
+        players.set(key, [...existingSockets, socket.id]);
+    }
 
-    await this.roomPlayersRepository.save({
-      game_room_id: gameRoom.id,
-      customer_id: player.id,
-      points: 0,
-    })
-    socket.emit("game:successJoin");
+    const socketIDManager = manager.get(`manager-${player.gameID}`)
+    console.log(socketIDManager);
+    if(socketIDManager)
+    {
+      for(const socketID of socketIDManager)
+        {
+          io.to(socketID).emit("manager:newPlayer", { ...playerData });
+        }
+    }
+    // await this.roomPlayersRepository.save({
+    //   game_room_id: gameRoom.id,
+    //   username: player.username || "Player",
+    //   customer_id: player.id,
+    //   points: 0,
+    // })
+    socket.emit("game:successJoin",{ id: player.id });
   }
 
   async selectedAnswer(io: any, socket: any, answerKey: string, gameId: string, playerID: string, roundStartTime): Promise<void> {

@@ -25,6 +25,8 @@ class EventsController {
         }
     }
 
+
+    @RoleGuard([ROLES.ADMIN, ROLES.BUSINESS, ROLES.CUSTOMER])
     async getAll(req: Request, res: Response, next: NextFunction) {
         try {
             const events = await EventsService.getAll();

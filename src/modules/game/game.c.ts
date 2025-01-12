@@ -18,7 +18,10 @@ class GameController {
     }
     async getAll(req: Request, res: Response, next: NextFunction) {
         try {
-            const games = await GameService.getAll();
+            const _req = req as CustomUserRequest;
+            const games = await GameService.getAll({
+                branch_id: _req.user.uid
+            });
             return res.status(200).json({ data: games });
         } catch (error: any) {
             logger.error(error.message);
@@ -113,6 +116,18 @@ class GameController {
             const data = req.body;
             const game = await GameService.updateDefault(id, data);
             return res.status(200).json({ data: game });
+        } catch (error: any) {
+            logger.error(error.message);
+            next(error);
+        }
+    }    
+    
+    @RoleGuard([ROLES.ADMIN, ROLES.BUSINESS, ROLES.CUSTOMER])
+    async getGameByEventId(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.params;
+            const data = await GameService.getGameByEventId({id});
+            return res.status(200).json({ data: data });
         } catch (error: any) {
             logger.error(error.message);
             next(error);

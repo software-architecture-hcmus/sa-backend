@@ -20,8 +20,8 @@ export class AutoGenerate1734946515709 implements MigrationInterface {
         await queryRunner.query(`
             INSERT INTO "default_games" ("name", "image", "allow_voucher_exchange", "instruction", "status", "type_id") 
             VALUES 
-            ('Quiz Game', 'quiz.png', true, 'Instruction for Quiz Game', 'AVAILABLE', 'QUIZ'),
-            ('Flappy Bird', 'flappybird.png', false, 'Instruction for Flappy Bird', 'AVAILABLE', 'FLAPPYBIRD');
+            ('Quiz Game', 'https://media.istockphoto.com/id/1336313511/vi/vec-to/vector-d%E1%BA%A5u-hi%E1%BB%87u-h%C3%A0i-h%C6%B0%E1%BB%9Bc-quiz-game-t%E1%BA%ADp-h%E1%BB%A3p-c%C3%A1c-ch%E1%BB%AF-c%C3%A1i-v%C3%A0-s%E1%BB%91-b%E1%BA%A3ng-ch%E1%BB%AF-c%C3%A1i-s%C3%A1ng-t%E1%BA%A1o.jpg?s=612x612&w=0&k=20&c=oXD5bGKLqZA0qLWhSoVyJ-9jyHG0TjwL6FDG144WDrU=', true, 'Instruction for Quiz Game', 'AVAILABLE', 'QUIZ'),
+            ('Flappy Bird', 'https://vnn-imgs-a1.vgcloud.vn/vnreview.vn/image/11/44/57/1144578.jpg', false, 'Instruction for Flappy Bird', 'AVAILABLE', 'FLAPPYBIRD');
         `);
     }
 

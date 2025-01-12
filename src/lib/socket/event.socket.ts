@@ -7,40 +7,37 @@ import { abortCooldown } from "./utils/cooldown"
 import deepClone from "./utils/deepClone"
 import { SOCKET_JOIN_USER_ROOM } from "../../shared/constants/socket-event";
 import logger from "../../utils/logger";
-
+const manager = new Map();
+const players = new Map()
 let gameState = deepClone(GAME_STATE_INIT)
 export const initEvents = (io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>) => {
     io.on('connection', (socket) => {
         console.log(`${socket.id} is connected`);
 
-        socket.on("player:checkRoom", (roomId, gameID) =>
-          Player.checkRoom(io, socket, roomId, gameID),
-        )
-        socket.on("player:join", (player, gameID) =>
-          Player.join(io, socket, player, gameID),
+        socket.on("player:join", (player) =>
+          Player.join(io, socket, player, manager, players ),
         )
       
-        socket.on("manager:createRoom", (password) =>
-          Manager.createRoom(gameState, io, socket, password),
-        )
-        socket.on("manager:kickPlayer", (playerId) =>
-          Manager.kickPlayer(gameState, io, socket, playerId),
-        )
+        // socket.on("manager:kickPlayer", (playerId) =>
+        //   Manager.kickPlayer(gameState, io, socket, playerId),
+        // )
       
-        socket.on("manager:startGame", () => Manager.startGame(gameState, io, socket))
+        socket.on("manager:startGame", (id) => Manager.startGame(io, socket, id, players))
       
-        socket.on("player:selectedAnswer", (answerKey, gameID, playerID, roundStartTime) =>
-          Player.selectedAnswer(io, socket, answerKey, gameID, playerID, roundStartTime),
+        socket.on("player:selectedAnswer", (data) =>
+          Player.selectedAnswer(io, socket, data, manager),
         )
       
         socket.on("manager:abortQuiz", () => Manager.abortQuiz(gameState, io, socket))
-      
-        socket.on("manager:nextQuestion", () =>
-          Manager.nextQuestion(gameState, io, socket),
+
+        socket.on("manager:joinRoom", (id)=>Manager.joinRoom(io,socket,id, manager))
+
+        socket.on("manager:nextQuestion", (id) =>
+          Manager.nextQuestion(id, io, socket, players),
         )
       
-        socket.on("manager:showLeaderboard", () =>
-          Manager.showLoaderboard(gameState, io, socket),
+        socket.on("manager:showLeaderboard", (id) =>
+          Manager.showLoaderboard(io, socket, id, players),
         )
       
         socket.on("disconnect", () => {

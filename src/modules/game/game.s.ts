@@ -28,7 +28,8 @@ class GameService {
                 default_game: true,
                 rooms: {
                     questions:{
-                        answers: true
+                        answers: true,
+                        solution: true
                     }
                 },
                 event: true,
@@ -37,8 +38,16 @@ class GameService {
         });
     }
 
-    async getAll() {
-        return await this.gameRepository.find();
+    async getAll({ branch_id } : {branch_id: string}) {
+        return await this.gameRepository.find(
+            {
+                where:{
+                    event:{
+                        brand_id:branch_id
+                    }
+                }
+            }
+        );
     }
 
     async createGameQuiz( createGameData: any) {
@@ -75,7 +84,7 @@ class GameService {
             const questionData = questions[i];
             const question = this.quizQuestionsRepository.create({
                 content: questionData.content,
-                image: questionData.image,
+                image: questionData.image && questionData.image.length > 0 ?  questionData.image : "",
                 cooldown: questionData.cooldown,
                 time: questionData.time,
                 games: gameRoom,
@@ -170,6 +179,20 @@ class GameService {
             game_type: data.game_type,
         });
         return await this.defaultGameRepository.save(defaultGame);
+    }
+    
+    async getGameByEventId({ id }: {id: string})
+    {
+        return await this.gameRepository.find({
+            where:{
+                event: {
+                    id: id
+                },
+            },
+            relations:{
+                default_game: true
+            }
+        })
     }
 }
 

@@ -9,7 +9,7 @@ export const abortCooldown = () => {
   }
 }
 
-export const cooldown = (ms, io, room) => {
+export const cooldown = (ms, io, room, playersSockets, socket ) => {
   let count = ms - 1
 
   return new Promise((resolve) => {
@@ -20,7 +20,11 @@ export const cooldown = (ms, io, room) => {
         clearInterval(cooldownTimeout)
         resolve()
       }
-      io.to(room).emit("game:cooldown", count)
+      socket.emit("game:cooldown", count)
+      for(const playersSocket of playersSockets)
+        {
+          io.to(playersSocket).emit("game:cooldown", count)
+        }
       count -= 1
     }, 1000)
   })

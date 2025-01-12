@@ -2,6 +2,7 @@ import { Entity, Column, ManyToOne, JoinColumn, Relation, PrimaryColumn, OneToMa
 import { AuditableEntity } from "../../lib/entities/auditable.entity"
 import { GameRooms } from "./game_rooms.entity";
 import { PlayerAnswers } from "./player_answers.entity";
+import { username } from '../../lib/joy/common';
 
 @Entity()
 export class RoomPlayers extends AuditableEntity {
@@ -15,6 +16,9 @@ export class RoomPlayers extends AuditableEntity {
     @Column({ type: 'int', nullable: true, default: 0 })
     score: number;
 
+    @Column({ type: 'text' })
+    username: string;
+    
     @ManyToOne(() => GameRooms, game_room => game_room.room_players)
     @JoinColumn({ name: 'game_room_id' })
     games: Relation<GameRooms>;

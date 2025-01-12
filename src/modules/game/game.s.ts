@@ -180,6 +180,17 @@ class GameService {
         });
         return await this.defaultGameRepository.save(defaultGame);
     }
+    
+    async getGameByEventId({ id }: {id: string})
+    {
+        return await this.gameRepository.find({
+            where:{
+                event: {
+                    id: id
+                }
+            }
+        })
+    }
 }
 
 export default new GameService();

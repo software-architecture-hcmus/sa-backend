@@ -7,7 +7,7 @@ import EventsService from "./events.s";
 
 class EventsController {
 
-    @RoleGuard([ROLES.ADMIN, ROLES.BUSINESS, ROLES.CUSTOMER])
+    @RoleGuard([ROLES.ADMIN, ROLES.BUSINESS])
     async create(req: Request, res: Response, next: NextFunction) {
         try {
             const _req = req as CustomUserRequest;

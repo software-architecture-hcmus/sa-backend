@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import logger from "../../utils/logger";
-import { ROLES } from "../../shared/constants/roles.constant";
+import { ROLES } from "../../shared/constants/user-roles.constant";
 import { RoleGuard } from "../../lib/decorators/role-guard.decorator";
 import AppDataSource from "../../database/data-source";
 import { CustomUserRequest } from "../../lib/interfaces/request.interface";

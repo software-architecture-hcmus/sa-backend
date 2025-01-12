@@ -19,7 +19,7 @@ class EventStartCron {
     }
 
     private async checkAndNotifyEventStart() {
-        
+        console.log("Checking for events starting within 5 minutes");
         const events = await EventsService.getEventsStartWithin5Minutes();
         for (const event of events) {
             await EventsService.notifyStart(event.id);

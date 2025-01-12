@@ -105,6 +105,19 @@ class GameController {
             next(error);
         }
     }
+
+    @RoleGuard([ROLES.ADMIN, ROLES.BUSINESS])
+    async updateDefault(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.body;
+            const data = req.body;
+            const game = await GameService.updateDefault(id, data);
+            return res.status(200).json({ data: game });
+        } catch (error: any) {
+            logger.error(error.message);
+            next(error);
+        }
+    }
 }
 
 export default new GameController;

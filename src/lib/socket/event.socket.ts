@@ -18,26 +18,26 @@ export const initEvents = (io: Server<DefaultEventsMap, DefaultEventsMap, Defaul
           Player.join(io, socket, player, manager, players ),
         )
       
-        socket.on("manager:kickPlayer", (playerId) =>
-          Manager.kickPlayer(gameState, io, socket, playerId),
-        )
+        // socket.on("manager:kickPlayer", (playerId) =>
+        //   Manager.kickPlayer(gameState, io, socket, playerId),
+        // )
       
         socket.on("manager:startGame", (id) => Manager.startGame(io, socket, id, players))
       
-        socket.on("player:selectedAnswer", (answerKey, gameID, playerID, roundStartTime) =>
-          Player.selectedAnswer(io, socket, answerKey, gameID, playerID, roundStartTime),
+        socket.on("player:selectedAnswer", (data) =>
+          Player.selectedAnswer(io, socket, data, manager),
         )
       
         socket.on("manager:abortQuiz", () => Manager.abortQuiz(gameState, io, socket))
 
         socket.on("manager:joinRoom", (id)=>Manager.joinRoom(io,socket,id, manager))
 
-        socket.on("manager:nextQuestion", () =>
-          Manager.nextQuestion(gameState, io, socket),
+        socket.on("manager:nextQuestion", (id) =>
+          Manager.nextQuestion(id, io, socket, players),
         )
       
-        socket.on("manager:showLeaderboard", () =>
-          Manager.showLoaderboard(gameState, io, socket),
+        socket.on("manager:showLeaderboard", (id) =>
+          Manager.showLoaderboard(io, socket, id, players),
         )
       
         socket.on("disconnect", () => {

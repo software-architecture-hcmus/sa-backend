@@ -1,5 +1,6 @@
 import { cooldown, sleep } from "./cooldown"
 import manager from "../roles/manager";
+import playerS from "../../../modules/player/player.s";
 export const startRound = async (game, io, socket, id, playersSockets) => {
   const question = game.currentQuestion;
   if (!game.started) return
@@ -85,17 +86,16 @@ export const startRound = async (game, io, socket, id, playersSockets) => {
 
   if (!game.started) return
   const PlayerAnswer = await manager.getPlayerAnswer(question.id);
-
   game?.players?.map(async (player) => {
     let playerAnswer =  PlayerAnswer.find((p) => p.customer_id === player.customer_id)
-
     let isCorrect = playerAnswer
-      ? playerAnswer.answer === question.solution
+      ? playerAnswer?.answer?.id === question?.solution?.id
       : false
-
+    
     let points = (isCorrect && Math.round(playerAnswer?.point ?? 0)) || 0;
-
-    player.point += points
+    player.score += points
+    console.log(player);
+    await playerS.saveRoomPlayer({gameID: player.game_room_id, playerID: player.customer_id, point: player.score})
 
     let sortPlayers = game.players.sort((a, b) => b.point - a.point)
 
@@ -108,7 +108,7 @@ export const startRound = async (game, io, socket, id, playersSockets) => {
           correct: isCorrect,
           message: isCorrect ? "Nice !" : "Too bad",
           points: points,
-          myPoints: player.point,
+          myPoints: player.score,
           rank,
           aheadOfMe: aheadPlayer ? aheadPlayer.username : null,
           id: player.customer_id
@@ -120,7 +120,8 @@ export const startRound = async (game, io, socket, id, playersSockets) => {
   let totalType = {}
 
   PlayerAnswer.forEach(({ answer }) => {
-    totalType[answer.id] = (totalType[answer.id] || 0) + 1
+    const index = question.answers.findIndex(currentAnswer => currentAnswer.id === answer.id)
+    totalType[index] = (totalType[index] || 0) + 1
   })
   // Manager
   socket.emit("game:status", {

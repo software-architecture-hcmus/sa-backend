@@ -57,11 +57,9 @@ export class Player {
     }
 
     const roomPlayer = await this.roomPlayersRepository.findOne({ where: { game_room_id: gameRoom.id, customer_id: player.id } });
-
     if (roomPlayer) {
       socket.emit("game:errorMessage", "Username already exists");
       socket.leave(player.gameID);
-
       return;
     }
 
@@ -87,7 +85,6 @@ export class Player {
     }
 
     const socketIDManager = manager.get(`manager-${player.gameID}`)
-    console.log(socketIDManager);
     if(socketIDManager)
     {
       for(const socketID of socketIDManager)
@@ -95,51 +92,95 @@ export class Player {
           io.to(socketID).emit("manager:newPlayer", { ...playerData });
         }
     }
-    // await this.roomPlayersRepository.save({
-    //   game_room_id: gameRoom.id,
-    //   username: player.username || "Player",
-    //   customer_id: player.id,
-    //   points: 0,
-    // })
+    await this.roomPlayersRepository.save({
+      game_room_id: gameRoom.id,
+      username: player.username || "Player",
+      customer_id: player.id,
+      points: 0,
+    })
     socket.emit("game:successJoin",{ id: player.id });
   }
 
-  async selectedAnswer(io: any, socket: any, answerKey: string, gameId: string, playerID: string, roundStartTime): Promise<void> {
-    const roomPlayer = await this.roomPlayersRepository.find({ where: { game_room_id: gameId} });
-    const gameRooms = await this.gameRoomsRepository.findOne({ where: { game_id: gameId } });
-    const currentQuestions = await this.currentQuestionsRepository.findOne({ where: { game_room_id: gameRooms?.id } });
-    const quizAnswer = await this.quizAnswersRepository.findOne({ where: { id: answerKey, question: currentQuestions?.quiz_question } });
-
-    if (!roomPlayer || !gameRooms || !currentQuestions || !quizAnswer) {
+  async selectedAnswer(io: any, socket: any, data: any, manager:any): Promise<void> {
+    const {answer, gameID, id} = data;
+    const gameRooms = await this.gameRoomsRepository.findOne({ where: { game_id: gameID } });
+    const roomPlayer = await this.roomPlayersRepository.find({ where: { game_room_id: gameRooms?.id} });
+    const currentQuestions = await this.currentQuestionsRepository.findOne(
+                                                                          { where: { game_room_id: gameRooms?.id },
+                                                                            relations:{
+                                                                              quiz_question: true
+                                                                            } 
+                                                                          });
+    if (!roomPlayer || !gameRooms || !currentQuestions) {
       return;
     }
-    const quizQuestionId = currentQuestions?.quiz_question.id;
-    const quizQuestion = await this.quizQuestionsRepository.findOne({ where: { id: quizQuestionId } });
-    
+    const quizAnswers = await this.quizAnswersRepository.find({
+      where: { question: { id: currentQuestions.quiz_question.id } },
+      
+    });
 
-    let point = convertTimeToPoint(roundStartTime, quizQuestion?.time);
-    if(quizAnswer !== quizQuestion?.solution){
+    const quizAnswer = quizAnswers[Number(answer)];
+    
+    const quizQuestionId = currentQuestions?.quiz_question.id;
+    const quizQuestion = await this.quizQuestionsRepository.findOne({ where: { id: quizQuestionId }, relations:{
+      solution: true
+    } });
+    let point = convertTimeToPoint(currentQuestions.updatedAt, quizQuestion?.time);
+    if(quizAnswer?.id !== quizQuestion?.solution?.id){
       point = 0;
     }
-    await this.playerAnswerRepository.save({
-      time: new Date().toISOString(),
-      answer: quizAnswer,
-      point:point,
-      customer_id: playerID,
-      game_room_id: gameId,
+    if(quizQuestion){
+      await this.playerAnswerRepository.save({
+        time: new Date().toISOString(),
+        answer: quizAnswer,
+        point:point,
+        customer_id: id,
+        game_room_id: gameRooms.id,
+        questions: quizQuestion
+      });
+    }
+
+    const answers = await this.playerAnswerRepository.find({ where: { game_room_id: gameRooms.id,
+      questions:{
+        id: quizQuestion?.id
+      }
+     } 
     });
-    const answers = await this.playerAnswerRepository.find({ where: { game_room_id: gameId } });
     const lengthAnswer = answers?.length ?? 0;
-    socket.to(gameRooms?.id).emit("game:status", {
+    socket.emit("game:status", {
       name: "WAIT",
       data: { text: "Waiting for the players to answer" },
     });
     socket.to(gameRooms?.id).emit("game:playerAnswer", lengthAnswer);
-
+    const socketIDManager = manager.get(`manager-${gameID}`)
+    if(socketIDManager)
+    {
+      for(const socketID of socketIDManager)
+        {
+          io.to(socketID).emit("game:playerAnswer", lengthAnswer);
+        }
+    }
     if (lengthAnswer === roomPlayer.length) {
       abortCooldown();
     }
   }
+
+  public  async saveRoomPlayer({ gameID, playerID, point }) {
+    const roomPlayer = await this.roomPlayersRepository.findOne({
+      where: {
+        customer_id: playerID,
+        game_room_id: gameID,
+      },
+    });
+  
+    if (roomPlayer) {
+      roomPlayer.score = (roomPlayer.score || 0) + Number(point);
+      return await this.roomPlayersRepository.save(roomPlayer);
+    } else {
+      throw new Error('Room player not found');
+    }
+  }
+
 }
 
 export default new Player;

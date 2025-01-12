@@ -84,7 +84,7 @@ class GameService {
             const questionData = questions[i];
             const question = this.quizQuestionsRepository.create({
                 content: questionData.content,
-                image: questionData.image,
+                image: questionData.image && questionData.image.length > 0 ?  questionData.image : "",
                 cooldown: questionData.cooldown,
                 time: questionData.time,
                 games: gameRoom,

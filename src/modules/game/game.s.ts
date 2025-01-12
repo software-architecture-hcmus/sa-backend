@@ -155,6 +155,22 @@ class GameService {
     async getDefault() {    
         return await this.defaultGameRepository.find();
     }
+
+    async updateDefault(id: string, data: any) {
+        const defaultGame = await this.defaultGameRepository.findOne({ where: { id } });
+        if (!defaultGame) {
+            throw new Error("Default game not found");
+        }
+        Object.assign(defaultGame, {
+            name: data.name,
+            image: data.image,
+            instruction: data.instruction,
+            status: data.status,
+            allow_voucher_exchange: data.allow_voucher_exchange,
+            game_type: data.game_type,
+        });
+        return await this.defaultGameRepository.save(defaultGame);
+    }
 }
 
 export default new GameService();

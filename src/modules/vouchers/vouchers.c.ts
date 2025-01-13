@@ -1,12 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import { USER_FIREBASE_COLLECTION } from "../../shared/constants/user-firebase-collection.constant";
 import CustomerVoucherService from "./customer-voucher.s"
+import VoucherService from "./vouchers.s";
 import { CustomUserRequest } from "../../lib/interfaces/request.interface";
 import AppDataSource from "../../database/data-source";
 import { TripleStatus } from "../../database/enums/triple-status.enum";
 import { Transaction } from "../../database/entities/transactions.entity";
 import { CustomerVoucher } from "../../database/entities/customer_vouchers.entity";
 import { Voucher } from "../../database/entities/voucher.entity";
+import logger from "../../utils/logger";
+import { RoomPlayerRequest } from "../../lib/interfaces/player.interface";
 
 class VoucherController {
     async test(req: Request, res: Response, next: NextFunction) {
@@ -188,6 +191,31 @@ class VoucherController {
             }
         } catch (error) {
             console.log(error);
+            next(error);
+        }
+
+    }
+    async createVoucherForQuizGame(req: Request, res: Response, next: NextFunction)
+    {
+        const {customer_id, game_room_id, score, position }= req.body;
+        if (!customer_id || !game_room_id ) {
+            return res.status(400).json({
+                ok: false,
+                message: "Invalid data",
+            });
+        }
+        try {
+            const roomPlayer: RoomPlayerRequest ={
+                customer_id: customer_id,
+                game_room_id: game_room_id,
+                score: Number(score) && Number(score)  > 0 ? Number(score): 0 ,
+                position: Number(position)
+            }
+            const rs = await VoucherService.createVoucherForQuizGame(roomPlayer);
+            console.log("voucher: ", rs);
+            return res.status(201).json({ data: rs });
+        } catch (error: any) {
+            logger.error(error.message);
             next(error);
         }
 

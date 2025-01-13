@@ -300,20 +300,6 @@ class Manager {
           .slice(0, 5),
       },
     })
-    if(playersSockets)
-    {
-      playersSockets.forEach(element => 
-      {
-        io.to(element).emit("game:status", {
-          name: "SHOW_LEADERBOARD",
-          data: {
-            leaderboard: gameData?.rooms[0]?.room_players
-              .sort((a, b) => b.score - a.score)
-              .slice(0, 5),
-          },
-        })
-      })
-    }
   }
 
   async getPlayerAnswer(question_id)

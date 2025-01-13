@@ -174,7 +174,7 @@ export class Player {
     });
   
     if (roomPlayer) {
-      roomPlayer.score = (roomPlayer.score || 0) + Number(point);
+      roomPlayer.score = Number(point);
       return await this.roomPlayersRepository.save(roomPlayer);
     } else {
       throw new Error('Room player not found');

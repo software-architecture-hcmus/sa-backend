@@ -24,6 +24,9 @@ export class Voucher extends AuditableEntity {
     @Column({type: 'text', nullable: true})
     status: string;
 
+    @Column({type: 'int', nullable: true, default: 0})
+    total_codes: number;
+
     @ManyToOne(() => Event, event => event.vouchers)
     @JoinColumn({ name: 'event_id' })
     event: Relation<Event>;

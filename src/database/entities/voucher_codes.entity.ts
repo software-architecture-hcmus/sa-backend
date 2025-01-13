@@ -1,9 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Relation, OneToMany } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Relation } from "typeorm"
 import { AuditableEntity } from "../../lib/entities/auditable.entity"
 
 import { Voucher } from "./voucher.entity"
-import { CustomerVoucher } from "./customer_vouchers.entity"
-
+    
 @Entity('voucher_codes')
 export class VoucherCode extends AuditableEntity {
     @PrimaryGeneratedColumn('uuid')

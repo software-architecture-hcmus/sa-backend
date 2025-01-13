@@ -7,6 +7,7 @@ import { GameResults } from "../../database/entities/game_results.entity";
 import { GameRooms } from "../../database/entities/game_rooms.entity";
 import { Event } from "../../database/entities/event.entity";
 import { CustomerVoucher } from "../../database/entities/customer_vouchers.entity";
+import { VoucherCode } from "../../database/entities/voucher_codes.entity";
 class VouchersService {
 
     private readonly voucherRepository: Repository<Voucher>
@@ -15,6 +16,7 @@ class VouchersService {
     private readonly gameRoomsRepository: Repository<GameRooms>
     private readonly eventRepository: Repository<Event>
     private readonly customerVoucherRepository: Repository<CustomerVoucher>
+    private readonly voucherCodeRepository: Repository<VoucherCode>
     constructor()
     {
         this.voucherRepository = DatabaseService.getInstance().getRepository(Voucher)
@@ -23,6 +25,7 @@ class VouchersService {
         this.gameRoomsRepository=  DatabaseService.getInstance().getRepository(GameRooms);
         this.eventRepository= DatabaseService.getInstance().getRepository(Event);
         this.customerVoucherRepository = DatabaseService.getInstance().getRepository(CustomerVoucher);
+        this.voucherCodeRepository = DatabaseService.getInstance().getRepository(VoucherCode);
     }
     async create(voucher: Voucher) {
         return await this.voucherRepository.save(voucher);
@@ -106,7 +109,10 @@ class VouchersService {
             return voucher;
         }
         return {}
-
+    }
+    
+    async createVoucherCode(voucherCode: VoucherCode) {
+        return await this.voucherCodeRepository.save(voucherCode);
     }
 }
 

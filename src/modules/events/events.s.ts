@@ -5,15 +5,19 @@ import AzureStorageService from "../../shared/azure/azure-storage.service"
 import NotificationsService from "../notifications/notification.s";
 import { And, LessThanOrEqual, MoreThan, Repository } from "typeorm";
 import FavouritesService from "../favourites/favourite.s";
+import { VoucherCode } from "../../database/entities/voucher_codes.entity";
+import { generateRandomCode } from "../../utils/randomCode";
 
 export class EventsService {
 
     private readonly eventRepository: Repository<Event>;
     private readonly voucherRepository: Repository<Voucher>;
+    private readonly voucherCodeRepository: Repository<VoucherCode>;
 
     constructor() {
         this.eventRepository = DatabaseService.getInstance().getRepository(Event);
         this.voucherRepository = DatabaseService.getInstance().getRepository(Voucher);
+        this.voucherCodeRepository = DatabaseService.getInstance().getRepository(VoucherCode);
     }
 
     async create(event: any) {
@@ -28,6 +32,19 @@ export class EventsService {
             ...voucher,
             event: savedEvent,
         }));
+
+        const codesToGenerate = event.vouchers.map(voucher => {
+            return voucher.total_codes;
+        });
+
+        if (codesToGenerate.length > 0) {
+            codesToGenerate.forEach(async (code, index) => {
+                const newVoucherCodes = Array.from({ length: code }, () => generateRandomCode());
+                const newVoucherCodesData = newVoucherCodes.map(code => ({ code, event: savedEvent }));
+                await this.voucherCodeRepository.save(newVoucherCodesData);
+            });
+        }
+
         await this.voucherRepository.save(vouchersData);
 
         return eventData;
@@ -57,7 +74,15 @@ export class EventsService {
     }
 
     async update(id: string, updateData: Partial<Event>) {
-        const existingEvent = await this.eventRepository.findOneBy({ id });
+        const existingEvent = await this.eventRepository.findOne({
+            where: { id },
+            relations: {
+                vouchers: true,
+            }
+        });
+        
+        // Sao chép sâu để lưu lại giá trị cũ
+        const oldEvent = JSON.parse(JSON.stringify(existingEvent)); 
         
         if (updateData.image && existingEvent?.image) {
             AzureStorageService.deleteFile(existingEvent?.image);
@@ -65,6 +90,28 @@ export class EventsService {
 
         const mergedEvent = this.eventRepository.merge(existingEvent!, updateData);
         
+        // Cập nhật vouchers nếu có
+        if (updateData.vouchers) {
+            const totalCodesNew = mergedEvent.vouchers.map(voucher => {
+                return voucher.total_codes;
+            });
+            const totalCodesOld = oldEvent?.vouchers?.map(voucher => {
+                return voucher.total_codes;
+            });
+            const codesToGenerate = totalCodesNew.map((code, index) => code - (totalCodesOld?.[index] ?? 0));
+
+            if (codesToGenerate.length > 0) {
+                codesToGenerate.forEach(async (code, index) => {
+                    const newVoucherCodes = Array.from({ length: code }, () => generateRandomCode());
+                    const newVoucherCodesData = newVoucherCodes.map(code => ({ code, event: mergedEvent }));
+                    const savedVoucherCodes = await this.voucherCodeRepository.save(newVoucherCodesData);
+                    console.log(savedVoucherCodes);
+                });
+            }
+
+            await this.voucherRepository.save(updateData.vouchers);
+        }
+
         // Save the updated entity
         return await this.eventRepository.save(mergedEvent);
     }

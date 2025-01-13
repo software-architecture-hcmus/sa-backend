@@ -62,6 +62,10 @@ class GameService {
         );
     }
 
+    async getAllAsAdmin() {
+        return await this.gameRepository.find();
+    }
+
     async createGameQuiz(createGameData: any) {
         const type = createGameData.type;
         const defaultGame = await this.defaultGameRepository.findOne({ where: { game_type: { id: type } } });

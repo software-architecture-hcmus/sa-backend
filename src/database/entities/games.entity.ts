@@ -5,7 +5,7 @@ import { DefaultGames } from "./default_game.entity";
 import { Event } from "./event.entity"
 import { GameRooms } from "./game_rooms.entity";
 import { GameTurns } from "./game_turns.entity";
-
+import { RequestTurn } from "./request_turns.entity"
 
 @Entity()
 export class Games extends AuditableEntity {
@@ -43,6 +43,9 @@ export class Games extends AuditableEntity {
     
     @OneToMany(() => GameTurns, game_turn => game_turn.games)
     game_turn: Relation<GameTurns>[];
+
+    @OneToMany(() => RequestTurn, request_turn => request_turn.game)
+    request_turns: Relation<RequestTurn>[];
 
     @BeforeInsert()
     setDefaults() {

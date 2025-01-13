@@ -220,6 +220,24 @@ class VoucherController {
         }
 
     }
+    async createVoucherForFlappyBird(req: Request, res: Response, next: NextFunction)
+    {
+        const {customer_id, gameID, score }= req.body;
+        if (!customer_id || !gameID ) {
+            return res.status(400).json({
+                ok: false,
+                message: "Invalid data",
+            });
+        }
+        try {
+            const rs = await VoucherService.createVoucherForFlappyBird({customer_id, gameID, score});
+            console.log("voucher: ", rs);
+            return res.status(201).json({ data: rs });
+        } catch (error: any) {
+            logger.error(error.message);
+            next(error);
+        }
+    }
 }
 
 export default new VoucherController;

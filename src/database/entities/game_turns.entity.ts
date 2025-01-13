@@ -10,7 +10,7 @@ export class GameTurns extends AuditableEntity {
     id: string;
 
     @Column({ type: 'text' })
-    account_id: string;
+    customer_id: string;
 
     @Column({ type: 'uuid' })
     game_id: string; 

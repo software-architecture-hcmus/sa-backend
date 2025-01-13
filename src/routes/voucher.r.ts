@@ -8,5 +8,6 @@ router.get("/accept-voucher", VoucherController.acceptVoucher);
 router.get("/customer-voucher", VoucherController.getCustomerVoucher);
 router.post("/use-customer-voucher", VoucherController.useCustomerVoucher);
 router.post("/quiz", VoucherController.createVoucherForQuizGame);
+router.post("/flappy-bird",VoucherController.createVoucherForFlappyBird)
 
 export default router;

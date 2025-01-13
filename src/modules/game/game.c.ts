@@ -133,6 +133,48 @@ class GameController {
             next(error);
         }
     }
+
+    @RoleGuard([ROLES.ADMIN, ROLES.BUSINESS, ROLES.CUSTOMER])
+    async getGameTurnCustomer(req: Request, res: Response, next: NextFunction) {
+        try {
+            const _req = req as CustomUserRequest;
+            if (!_req.body.customer_id) {
+                req.body.customer_id = _req.user.uid;
+            }
+            const { id } = req.params;
+            const { customer_id } = req.body
+            const data = await GameService.getGameTurnCustomer({id, customer_id});
+            return res.status(200).json({ data: data });
+        } catch (error: any) {
+            logger.error(error.message);
+            next(error);
+        }
+    }
+    async updateGameTurnCustomer(req: Request, res: Response, next: NextFunction) {
+        try {
+            const _req = req as CustomUserRequest;
+            if (!_req.body.customer_id) {
+                req.body.customer_id = _req.user.uid;
+            }
+            const { customer_id, gameID, turn } = req.body
+            const data = await GameService.updateGameTurnCustomer({customer_id, gameID, turn});
+            return res.status(200).json({ data: data });
+        } catch (error: any) {
+            logger.error(error.message);
+            next(error);
+        }
+    }
+
+    async updateScoreGameOfCustomer(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { customer_id, gameID, score } = req.body
+            const data = await GameService.updateScoreGameOfCustomer({customer_id, gameID, score});
+            return res.status(200).json({ data: data });
+        } catch (error: any) {
+            logger.error(error.message);
+            next(error);
+        }
+    }
 }
 
 export default new GameController;

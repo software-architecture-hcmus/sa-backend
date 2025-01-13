@@ -12,6 +12,19 @@ import logger from "../../utils/logger";
 import { RoomPlayerRequest } from "../../lib/interfaces/player.interface";
 
 class VoucherController {
+
+    async getAll(req: Request, res: Response, next: NextFunction) {
+        try {
+            const _req = req as CustomUserRequest;
+            const vouchers = await VoucherService.getAll({
+                brand_id: _req.user.uid
+            });
+            return res.status(200).json({ data: vouchers });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     async test(req: Request, res: Response, next: NextFunction) {
         try {
             return res.status(200).json({

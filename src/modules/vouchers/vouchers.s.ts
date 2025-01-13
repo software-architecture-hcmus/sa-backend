@@ -27,6 +27,19 @@ class VouchersService {
         this.customerVoucherRepository = DatabaseService.getInstance().getRepository(CustomerVoucher);
         this.voucherCodeRepository = DatabaseService.getInstance().getRepository(VoucherCode);
     }
+
+    async getAll({ brand_id }: { brand_id: string }) {
+        return await this.voucherRepository.find(
+            {
+                where: {
+                    event: {
+                        brand_id: brand_id
+                    }
+                }
+            }
+        );
+    }
+
     async create(voucher: Voucher) {
         return await this.voucherRepository.save(voucher);
     }

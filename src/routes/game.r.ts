@@ -7,12 +7,15 @@ import { uploadSingle } from "../lib/middlewares/upload.middleware";
 
 router.get('/detail/:id', gameController.getById);
 router.get('/default', gameController.getDefault);
-router.put('/default', uploadSingle('image'), gameController.updateDefault);
+router.get('/turn/:id', gameController.getGameTurnCustomer)
+router.put('/turn', gameController.updateGameTurnCustomer)
+router.put('/score', gameController.updateScoreGameOfCustomer)
 router.get('/', gameController.getAll);
 router.get('/event/:id', gameController.getGameByEventId);
 router.post('/', gameController.createGame);
 router.post('/:id', gameController.saveResult);
 router.post('/quiz/question', gameController.createQuestion)
+router.put('/default', uploadSingle('image'), gameController.updateDefault);
 router.patch('/quiz/question/:id', gameController.updateQuestion)
 router.delete('/quiz/question/:id', gameController.updateQuestion)
 export default router;

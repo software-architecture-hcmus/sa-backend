@@ -114,6 +114,69 @@ class VouchersService {
     async createVoucherCode(voucherCode: VoucherCode) {
         return await this.voucherCodeRepository.save(voucherCode);
     }
+    async createVoucherForFlappyBird({customer_id, gameID, score})
+    {
+        const gameRoom = await this.gameRoomsRepository.findOne({
+            where:{
+                games:{
+                    id: gameID
+                }
+            }
+        })
+        if(!gameRoom)
+        {
+            return {}
+        }
+        const gameResult = await this.gameResultsRepository.findOne({
+            where:{
+                customer_id: customer_id,
+                game_room:{
+                    id: gameRoom.id
+                }
+            }
+        })
+        if(!gameResult)
+        {
+            return {}
+        }
+        const event = await this.eventRepository.findOne({
+            where:{
+                games:{
+                    id: gameID
+                }
+            }
+        })
+        let vouchers = await this.voucherRepository.find({
+            where:{
+                event:{
+                    id: event?.id
+                }
+            }
+        })
+        if(!vouchers)
+        {
+            return {}
+        }
+        vouchers = vouchers?.sort((a, b) => a.value - b.value);
+        const closestVoucher = vouchers
+            ?.filter(v => v.value <= Number(score))
+            .reduce<Voucher | undefined>((closest, current) => {
+                if (!closest) return current;
+                return Math.abs(current.value - Number(score)) < Math.abs(closest.value - Number(score))
+                ? current
+                : closest;
+            }, undefined);
+        if(closestVoucher)
+        {
+            const customerVoucher = new CustomerVoucher()
+            customerVoucher.customer_id = customer_id;
+            customerVoucher.game_result = gameResult;
+            customerVoucher.voucher = closestVoucher;
+            await this.customerVoucherRepository.save(customerVoucher);
+            return closestVoucher
+        }
+        return {}
+    }
 }
 
 export default new VouchersService();

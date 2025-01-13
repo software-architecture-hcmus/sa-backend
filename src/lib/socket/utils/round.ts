@@ -19,7 +19,7 @@ export const startRound = async (game, io, socket, id, playersSockets) => {
   socket.emit("game:status", {
     name: "SHOW_PREPARED",
     data: {
-      totalAnswers: question.answers.length,
+      totalAnswers: question.answers?.length,
       questionNumber: question.position + 1,
     },
   })
@@ -94,11 +94,9 @@ export const startRound = async (game, io, socket, id, playersSockets) => {
     
     let points = (isCorrect && Math.round(playerAnswer?.point ?? 0)) || 0;
     player.score += points
-    console.log(player);
     await playerS.saveRoomPlayer({gameID: player.game_room_id, playerID: player.customer_id, point: player.score})
 
     let sortPlayers = game.players.sort((a, b) => b.point - a.point)
-
     let rank = sortPlayers.findIndex((p) => p.customer_id === player.customer_id) + 1
     let aheadPlayer = sortPlayers[rank - 2]
     playersSockets.forEach(element => {

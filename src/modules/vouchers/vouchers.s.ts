@@ -125,7 +125,7 @@ class VouchersService {
         })
         if(!gameRoom)
         {
-            return {}
+            return null
         }
         const gameResult = await this.gameResultsRepository.findOne({
             where:{
@@ -137,7 +137,7 @@ class VouchersService {
         })
         if(!gameResult)
         {
-            return {}
+            return null
         }
         const event = await this.eventRepository.findOne({
             where:{
@@ -155,7 +155,7 @@ class VouchersService {
         })
         if(!vouchers)
         {
-            return {}
+            return null
         }
         vouchers = vouchers?.sort((a, b) => a.value - b.value);
         const closestVoucher = vouchers
@@ -175,7 +175,7 @@ class VouchersService {
             await this.customerVoucherRepository.save(customerVoucher);
             return closestVoucher
         }
-        return {}
+        return null
     }
 }
 

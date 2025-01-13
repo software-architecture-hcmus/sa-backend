@@ -7,5 +7,6 @@ router.post("/give-away", VoucherController.giveAway);
 router.get("/accept-voucher", VoucherController.acceptVoucher);
 router.get("/customer-voucher", VoucherController.getCustomerVoucher);
 router.post("/use-customer-voucher", VoucherController.useCustomerVoucher);
+router.post("/quiz", VoucherController.createVoucherForQuizGame);
 
 export default router;

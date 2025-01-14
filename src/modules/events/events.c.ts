@@ -30,7 +30,7 @@ class EventsController {
     async getAll(req: Request, res: Response, next: NextFunction) {
         try {
             const _req = req as CustomUserRequest;
-            if (!_req.body.brand_id) {
+            if (!_req.body.brand_id && _req.user.role === ROLES.BUSINESS) {
                 req.body.brand_id = _req.user.uid;
             }
             const events = await EventsService.getAll(_req.body.brand_id);

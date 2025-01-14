@@ -10,6 +10,8 @@ import { CustomerVoucher } from "../../database/entities/customer_vouchers.entit
 import { Voucher } from "../../database/entities/voucher.entity";
 import logger from "../../utils/logger";
 import { RoomPlayerRequest } from "../../lib/interfaces/player.interface";
+import { ROLES } from "../../shared/constants/user-roles.constant";
+import { RoleGuard } from "../../lib/decorators/role-guard.decorator";
 
 class VoucherController {
 
@@ -131,6 +133,19 @@ class VoucherController {
         });
     }
 
+    async getCustomerVouchers(req: Request, res: Response, next: NextFunction) {
+        try {
+            console.log('haha');
+            const _req = req as CustomUserRequest;
+            console.log(_req.user);
+            const customerVouchers = await VoucherService.getCustomerVouchers({
+                brand_id: _req.user.uid
+            });
+            return res.status(200).json({ data: customerVouchers });
+        } catch (error) {
+            next(error);
+        }
+    }
     
     async getCustomerVoucher(req: Request, res: Response, next: NextFunction) {
         const _req = req as CustomUserRequest;
@@ -161,6 +176,8 @@ class VoucherController {
             next(error);
         }
     }
+
+    
 
     async useCustomerVoucher(req: Request, res: Response, next: NextFunction) {
         const _req = req as CustomUserRequest;

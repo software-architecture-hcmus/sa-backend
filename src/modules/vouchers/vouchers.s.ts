@@ -190,6 +190,19 @@ class VouchersService {
         }
         return null
     }
+
+    async getCustomerVouchers({ brand_id }: { brand_id: string }) {
+        return await this.customerVoucherRepository.find({
+            where: {
+                voucher: {
+                    event: {
+                        brand_id: brand_id
+                    }
+                }
+            },
+            relations: ['voucher']
+        });
+    }
 }
 
 export default new VouchersService();

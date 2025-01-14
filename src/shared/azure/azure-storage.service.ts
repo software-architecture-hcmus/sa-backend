@@ -12,6 +12,9 @@ class AzureStorageService {
     }
 
     async uploadFile(file: Express.Multer.File): Promise<string> {
+        if (!file) {
+            return '';
+        }
         const blobName = `${Date.now()}-${file.originalname}`;
         const containerClient = this.blobServiceClient.getContainerClient(this.containerName);
         const blockBlobClient = containerClient.getBlockBlobClient(blobName);

@@ -40,7 +40,7 @@ class GameController {
             if (!_req.body.brand_id) {
                 req.body.brand_id = _req.user.uid;
             }
-            const { name, type, allow_voucher_exchange, instruction, status, started, event, brand_id } = req.body;
+            const { name, type, allow_voucher_exchange, instruction, status, started, event, brand_id, image } = req.body;
 
             const createGameData = {
                 name,
@@ -50,11 +50,12 @@ class GameController {
                 status,
                 started,
                 event,
-                brand_id
+                brand_id,
+                image
             };
             let game;
             if (type === "QUIZ") {
-                createGameData["questions"] = req.body.questions;
+                createGameData["questions"] = JSON.parse(req.body.questions);
                 game = await GameService.createGameQuiz(createGameData);
             } else if (type === "FLAPPYBIRD") {
                 createGameData["play_count"] = req.body.play_count;
@@ -66,6 +67,28 @@ class GameController {
             next(error);
         }
     }
+
+    
+    @RoleGuard([ROLES.ADMIN, ROLES.BUSINESS])
+    async updateGame(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.params;
+            const data = req.body;
+            let game;
+            if (data.type === "QUIZ") {
+                data.questions = JSON.parse(req.body.questions);
+                console.log(data.questions[0]);
+                game = await GameService.updateGameQuiz(id, data);
+            } else if (data.type === "FLAPPYBIRD") {
+                game = await GameService.updateGameFlappyBird(id, data);
+            }
+            return res.status(200).json({ data: game });
+        } catch (error: any) {
+            logger.error(error.message);
+            next(error);
+        }
+    }
+
     async saveResult(req: Request, res: Response, next: NextFunction) {
         try {
             return res.status(200).json({ data: "saveResult" });

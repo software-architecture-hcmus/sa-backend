@@ -196,7 +196,6 @@ class Manager {
     } else {
       crQuestion = gameData.rooms[0].questions.find((question) => question.position === 0);
     }
-    
     if (crQuestion) {
       gameData['currentQuestion'] = crQuestion;
       currentQuestionEntity = currentQuestionEntity || new CurrentQuestions();
@@ -284,7 +283,7 @@ class Manager {
               name: "FINISH",
               data: {
                 subject: gameData.name,
-                top: gameData?.rooms[0]?.room_players,
+                top: gameData?.rooms[0]?.room_players.sort((a, b) => b.score - a.score),
               },
             })
           })

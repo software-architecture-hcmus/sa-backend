@@ -15,6 +15,7 @@ export const uploadSingle = (fieldName: string) => {
             try {
                 // If there's a file in the request, upload it to Azure
                 if (req.file) {
+                    console.log(req.file);
                     const fileUrl = await azureStorageService.uploadFile(req.file);
                     req.body[fieldName] = fileUrl;
                 }
@@ -27,9 +28,9 @@ export const uploadSingle = (fieldName: string) => {
 };
 
 // Optional: Add multiple files upload if needed
-export const uploadMultiple = (fieldName: string, maxCount: number = 5) => {
+export const uploadMultiple = (fieldName: string) => {
     return (req: Request, res: Response, next: NextFunction) => {
-        upload.array(fieldName, maxCount)(req, res, async (err) => {
+        upload.array(fieldName)(req, res, async (err) => {
             if (err) {
                 return next(err);
             }

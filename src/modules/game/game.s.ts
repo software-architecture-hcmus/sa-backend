@@ -90,7 +90,7 @@ class GameService {
             const questionData = questions[i];
             const question = this.quizQuestionsRepository.create({
                 content: questionData.content,
-                image: questionData.image && questionData.image.length > 0 ? questionData.image : "",
+                image: questionData.image && questionData.image.length > 0 && questionData.image!="n" ?  questionData.image : "",
                 cooldown: questionData.cooldown,
                 time: questionData.time,
                 games: gameRoom,
@@ -118,6 +118,64 @@ class GameService {
         return game;
     }
 
+    async updateGameQuiz(id: string, data: any) {
+        const game = await this.gameRepository.findOne({ where: { id } });
+        if (!game) {
+            throw new Error("Game not found");
+        }
+        // update game
+        const mergedGame = this.gameRepository.merge(game, {
+            name: data.name,
+            image: data.image,
+            allow_voucher_exchange: data.allow_voucher_exchange,
+            instruction: data.instruction,
+            status: data.status,
+            started: data.started,
+        });
+        await this.gameRepository.save(mergedGame);
+
+        // update questions and answers
+        const questions = data.questions;
+        const questionsToUpdate : QuizQuestions[] = [];
+        const answersToUpdate : QuizAnswers[] = [];
+
+        for (let i = 0; i < questions.length; i++) {
+            const questionData = questions[i];
+            const question = await this.quizQuestionsRepository.findOne({ where: { id: questionData.id } });
+            if (!question) {
+                throw new Error("Question not found");
+            }
+            // Prepare question for update
+            const mergedQuestion = this.quizQuestionsRepository.merge(question, {
+                content: questionData.content || question.content,
+                image: questionData.image || question.image,
+                cooldown: questionData.cooldown !== undefined ? questionData.cooldown : question.cooldown,
+                time: questionData.time !== undefined ? questionData.time : question.time,
+                position: i
+            });
+            questionsToUpdate.push(mergedQuestion);
+
+            // Prepare answers for update
+            const answers = questionData.answers;
+            for (const answerData of answers) {
+                const answer = await this.quizAnswersRepository.findOne({ where: { id: answerData.id } });
+                if (!answer) {
+                    throw new Error("Answer not found");
+                }
+                const mergedAnswer = this.quizAnswersRepository.merge(answer, {
+                    content: answerData.content || answer.content,
+                });
+                answersToUpdate.push(mergedAnswer);
+            }
+        }
+
+        // Save all questions and answers in batch
+        await this.quizQuestionsRepository.save(questionsToUpdate);
+        await this.quizAnswersRepository.save(answersToUpdate);
+
+        return mergedGame;
+    }
+
     async createGameFlappyBird(createGameData: any,) {
         const type = createGameData.type;
         const defaultGame = await this.defaultGameRepository.findOne({ where: { game_type: { id: type } } });
@@ -142,6 +200,33 @@ class GameService {
         await this.gameRoomRepository.save(gameRoom);
 
         return game;
+    }
+    
+    async updateGameFlappyBird(id: string, data: any) {
+        const game = await this.gameRepository.findOne({ where: { id } });
+        if (!game) {
+            throw new Error("Game not found");
+        }
+        // update game
+        const mergedGame = this.gameRepository.merge(game, {
+            name: data.name,
+            image: data.image,
+            allow_voucher_exchange: data.allow_voucher_exchange,
+            instruction: data.instruction,
+            status: data.status,
+            started: data.started,
+        });
+        await this.gameRepository.save(mergedGame);
+
+        // update game turn
+        const gameTurn = await this.gameTurnsRepository.findOne({ where: { games: { id } } });
+        if (!gameTurn) {
+            throw new Error("Game turn not found");
+        }
+        const mergedGameTurn = this.gameTurnsRepository.merge(gameTurn, { quantity: data.play_count });
+        await this.gameTurnsRepository.save(mergedGameTurn);
+
+        return mergedGame;
     }
 
     async saveResult() {

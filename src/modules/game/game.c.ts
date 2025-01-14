@@ -23,9 +23,16 @@ class GameController {
     async getAll(req: Request, res: Response, next: NextFunction) {
         try {
             const _req = req as CustomUserRequest;
-            const games = await GameService.getAll({
-                branch_id: _req.user.uid
-            });
+            const userRole = _req.user.role;
+
+            let games;
+            if (userRole === ROLES.ADMIN) {
+                games = await GameService.getAllAsAdmin();
+            } else {
+                games = await GameService.getAll({
+                    branch_id: _req.user.uid
+                });
+            }
             return res.status(200).json({ data: games });
         } catch (error: any) {
             logger.error(error.message);

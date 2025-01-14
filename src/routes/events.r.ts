@@ -7,6 +7,7 @@ import { uploadSingle } from '../lib/middlewares/upload.middleware';
 
 router.get('/', eventsController.getAll);
 router.post('/', uploadSingle('image'), eventsController.create);
+router.get('/stats', eventsController.getStats);
 router.get('/:id', eventsController.getById);
 router.delete('/delete/:id', eventsController.delete);
 router.put('/update/:id', uploadSingle('image'), eventsController.update);

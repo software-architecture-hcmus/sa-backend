@@ -133,6 +133,17 @@ class EventsController {
             next(error);
         }
     }
+
+    async getStats(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.params;
+            const stats = await EventsService.getStats({brand_id: id});
+            return res.status(200).json({ data: stats });
+        } catch (error: any) {
+            logger.error(error.message);
+            next(error);
+        }
+    }
 }
 
 export default new EventsController;

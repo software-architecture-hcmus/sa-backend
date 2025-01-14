@@ -16,6 +16,7 @@ router.post('/',uploadSingle('image'), gameController.createGame);
 router.post('/request-game-turn', gameController.requestGameTurn);
 router.post('/accept-game-turn', gameController.acceptGameTurn);
 router.post('/reject-game-turn', gameController.rejectGameTurn);
+router.post('/share-to-facebook', gameController.successShareToFacebook);
 router.put('/:id',uploadSingle('image'), gameController.updateGame);
 router.post('/:id', gameController.saveResult);
 router.post('/quiz/question', gameController.createQuestion)

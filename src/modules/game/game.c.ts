@@ -203,6 +203,45 @@ class GameController {
         }
     }
 
+    async successShareToFacebook(req: Request, res: Response, next: NextFunction) {
+        try {
+            const _req = req as CustomUserRequest;
+            const customer_id = _req.user.uid;
+            const { game_id } = req.body
+
+            if (!customer_id || !game_id) {
+                return res.status(400).json({
+                    ok: "false",
+                    message: "Invalid data"
+                });
+            }
+
+            const customerGameTurn = await GameTurns.findOne({where: {
+                game_id,
+                customer_id,
+            }})
+
+            if (!customerGameTurn) {
+                return res.status(400).json({
+                    ok: false,
+                    message: "Game turn not found"
+                });
+            }
+
+            customerGameTurn.quantity += 1;
+            await customerGameTurn.save();
+            return res.status(200).json({ 
+                ok: true,
+                message: "Increase quantity after share to facebook success",
+                data: customerGameTurn 
+            });
+            
+        } catch (error: any) {
+            logger.error(error.message);
+            next(error);
+        }
+    }
+
     async requestGameTurn(req: Request, res: Response, next: NextFunction) {
         try {
             const _req = req as CustomUserRequest;

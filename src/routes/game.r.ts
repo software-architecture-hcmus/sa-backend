@@ -7,6 +7,7 @@ import { uploadMultiple, uploadSingle } from "../lib/middlewares/upload.middlewa
 
 router.get('/detail/:id', gameController.getById);
 router.get('/default', gameController.getDefault);
+router.put('/default', uploadSingle('image'), gameController.updateDefault);
 router.get('/turn/:id', gameController.getGameTurnCustomer)
 router.put('/turn', gameController.updateGameTurnCustomer)
 router.put('/score', gameController.updateScoreGameOfCustomer)
@@ -20,7 +21,6 @@ router.post('/share-to-facebook', gameController.successShareToFacebook);
 router.put('/:id',uploadSingle('image'), gameController.updateGame);
 router.post('/:id', gameController.saveResult);
 router.post('/quiz/question', gameController.createQuestion)
-router.put('/default', uploadSingle('image'), gameController.updateDefault);
 router.patch('/quiz/question/:id', gameController.updateQuestion)
 router.delete('/quiz/question/:id', gameController.updateQuestion)
 export default router;

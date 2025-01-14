@@ -84,7 +84,6 @@ class GameController {
             let game;
             if (data.type === "QUIZ") {
                 data.questions = JSON.parse(req.body.questions);
-                console.log(data.questions[0]);
                 game = await GameService.updateGameQuiz(id, data);
             } else if (data.type === "FLAPPYBIRD") {
                 game = await GameService.updateGameFlappyBird(id, data);

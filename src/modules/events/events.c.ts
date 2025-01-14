@@ -29,7 +29,11 @@ class EventsController {
     @RoleGuard([ROLES.ADMIN, ROLES.BUSINESS, ROLES.CUSTOMER])
     async getAll(req: Request, res: Response, next: NextFunction) {
         try {
-            const events = await EventsService.getAll();
+            const _req = req as CustomUserRequest;
+            if (!_req.body.brand_id) {
+                req.body.brand_id = _req.user.uid;
+            }
+            const events = await EventsService.getAll(_req.body.brand_id);
             return res.status(200).json({ data: events });
         } catch (error: any) {
             logger.error(error.message);

@@ -11,7 +11,6 @@ import { PlayerAnswers } from "../../database/entities/player_answers.entity";
 import { GameRooms } from '../../database/entities/game_rooms.entity';
 import { GameResults } from "../../database/entities/game_results.entity";
 import { CurrentQuestions } from "../../database/entities/current_questions.entity";
-import { username } from '../../lib/joy/common';
 
 export class Player {
   private readonly gamesRepository: Repository<Games>;
@@ -115,11 +114,10 @@ export class Player {
       return;
     }
     const quizAnswers = await this.quizAnswersRepository.find({
-      where: { question: { id: currentQuestions.quiz_question.id } },
-      
-    });
-
-    const quizAnswer = quizAnswers[Number(answer)];
+      where: { question: { id: currentQuestions.quiz_question.id },  },
+      order: { createdAt: "ASC" }
+      });
+      const quizAnswer = quizAnswers[Number(answer)];
     
     const quizQuestionId = currentQuestions?.quiz_question.id;
     const quizQuestion = await this.quizQuestionsRepository.findOne({ where: { id: quizQuestionId }, relations:{

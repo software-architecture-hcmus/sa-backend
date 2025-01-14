@@ -60,11 +60,15 @@ export const startRound = async (game, io, socket, id, playersSockets) => {
 
   game.roundStartTime = Date.now()
 
+  const answers = question.answers
+  .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+  .map(answer => answer.content);
+
   socket.emit("game:status", {
     name: "SELECT_ANSWER",
     data: {
       question: question.content,
-      answers: question.answers.map(answer=> answer.content),
+      answers: answers,
       image: question.image,
       time: question.time,
       totalPlayer: game.players.length,
@@ -75,7 +79,7 @@ export const startRound = async (game, io, socket, id, playersSockets) => {
       name: "SELECT_ANSWER",
       data: {
         question: question.content,
-        answers: question.answers.map(answer=> answer.content),
+        answers: answers,
         image: question.image,
         time: question.time,
         totalPlayer: game.players.length,
@@ -128,7 +132,7 @@ export const startRound = async (game, io, socket, id, playersSockets) => {
       question: question.content,
       responses: totalType,
       correct: question.answers.findIndex(answer => answer.id === question.solution.id),
-      answers: question.answers.map(answer=> answer.content),
+      answers: answers,
       image: question.image,
     },
   })

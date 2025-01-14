@@ -372,8 +372,7 @@ class GameService {
                 customer_id: customer_id
             }
         })
-        console.log(gameTurn);
-        if (!gameTurn || !Number(turn) || Number(turn) < 0) {
+        if (!gameTurn || Number(turn) < 0) {
             return false
         }
         gameTurn.quantity = Number(turn)

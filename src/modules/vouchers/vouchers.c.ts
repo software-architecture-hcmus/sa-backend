@@ -135,9 +135,7 @@ class VoucherController {
 
     async getCustomerVouchers(req: Request, res: Response, next: NextFunction) {
         try {
-            console.log('haha');
             const _req = req as CustomUserRequest;
-            console.log(_req.user);
             const customerVouchers = await VoucherService.getCustomerVouchers({
                 brand_id: _req.user.uid
             });

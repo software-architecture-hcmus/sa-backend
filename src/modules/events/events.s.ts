@@ -7,17 +7,20 @@ import { And, LessThanOrEqual, MoreThan, Repository } from "typeorm";
 import FavouritesService from "../favourites/favourite.s";
 import { VoucherCode } from "../../database/entities/voucher_codes.entity";
 import { generateRandomCode } from "../../utils/randomCode";
+import { GameResults } from "../../database/entities/game_results.entity";
 
 export class EventsService {
 
     private readonly eventRepository: Repository<Event>;
     private readonly voucherRepository: Repository<Voucher>;
     private readonly voucherCodeRepository: Repository<VoucherCode>;
+    private readonly gameResultRepository: Repository<GameResults>;
 
     constructor() {
         this.eventRepository = DatabaseService.getInstance().getRepository(Event);
         this.voucherRepository = DatabaseService.getInstance().getRepository(Voucher);
         this.voucherCodeRepository = DatabaseService.getInstance().getRepository(VoucherCode);
+        this.gameResultRepository = DatabaseService.getInstance().getRepository(GameResults);
     }
 
     async create(event: any) {
@@ -143,6 +146,36 @@ export class EventsService {
                 ),
             }
         });
+    }
+
+    async getStats({ brand_id }: { brand_id: string }) {
+        const events = await this.eventRepository.find({
+            where: {
+                brand_id: brand_id,
+            },
+        });
+
+        const stats = await Promise.all(events.map(async event => {
+            const playsPerEvent = await this.gameResultRepository.count({
+                where: {
+                    game_room: {
+                        games: {
+                            event: {
+                                id: event.id,
+                            }
+                        }
+                    }
+                }
+            });
+            return {
+                event,
+                playsPerEvent,
+            };
+        }));
+
+
+
+        return stats;
     }
 
 }

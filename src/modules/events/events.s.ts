@@ -54,15 +54,26 @@ export class EventsService {
     }
 
     async getAll(id: string) {
+        if(id)
+        {
+            return await this.eventRepository.find({
+                where: {
+                    brand_id: id,
+                },
+                order: {
+                    start: 'DESC',
+                }
+            });
+        }
+        else
+        {
+            return await this.eventRepository.find({
+                order: {
+                    start: 'DESC',
+                }
+            });
+        }
 
-        return await this.eventRepository.find({
-            where: {
-                brand_id: id,
-            },
-            order: {
-                start: 'DESC',
-            }
-        });
     }
 
     async getById(id: string) {

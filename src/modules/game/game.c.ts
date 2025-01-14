@@ -4,7 +4,11 @@ import { ROLES } from "../../shared/constants/user-roles.constant";
 import { RoleGuard } from "../../lib/decorators/role-guard.decorator";
 import AppDataSource from "../../database/data-source";
 import { CustomUserRequest } from "../../lib/interfaces/request.interface";
+import UserService from "../users/users.s";
 import GameService from "./game.s";
+import { RequestTurn } from "../../database/entities/request_turns.entity";
+import { GameTurns } from "../../database/entities/game_turns.entity";
+import { TripleStatus } from "../../database/enums/triple-status.enum";
 
 class GameController {
     async getById(req: Request, res: Response, next: NextFunction) {
@@ -171,6 +175,152 @@ class GameController {
             const data = await GameService.updateScoreGameOfCustomer({customer_id, gameID, score});
             return res.status(200).json({ data: data });
         } catch (error: any) {
+            logger.error(error.message);
+            next(error);
+        }
+    }
+
+    async requestGameTurn(req: Request, res: Response, next: NextFunction) {
+        try {
+            const _req = req as CustomUserRequest;
+            const sender_id = _req.user.uid;
+            const { receiver_email, game_id } = req.body;
+            
+            if (!receiver_email || !sender_id || !game_id) {
+                return res.status(400).json({
+                    ok: "false",
+                    message: "Invalid data"
+                });
+            }
+            
+            const receiver = await UserService.findOneByEmail(receiver_email);
+            if (!receiver) {
+                return res.status(400).json({
+                    ok: false,
+                    message: "Request receiver not found"
+                });
+            }
+
+            const game = await GameService.getById(game_id);
+            if (!game) {
+                return res.status(400).json({
+                    ok: false,
+                    message: "Game not found"
+                });
+            }
+
+            const data = await GameService.addGameTurn(sender_id, receiver.id, game);
+            
+            return res.status(200).json({ 
+                ok: true,
+                message: "Send request success!",
+                data: data 
+            });
+        } catch (error: any) {
+            console.log(error);
+            logger.error(error.message);
+            next(error);
+        }
+    }
+
+    async acceptGameTurn(req: Request, res: Response, next: NextFunction) {
+        try {
+            const _req = req as CustomUserRequest;
+            const receiver_id = _req.user.uid;
+            const { sender_id, request_turn_id } = req.body;
+            
+            if (!sender_id || !receiver_id || !request_turn_id) {
+                return res.status(400).json({
+                    ok: "false",
+                    message: "Invalid data"
+                });
+            }
+            const request_turn = await RequestTurn.findOne({
+                where: { id: request_turn_id },
+                relations: ["game"]
+            });
+            if (!request_turn || request_turn.status != TripleStatus.PENDING) {
+                return res.status(400).json({
+                    ok: false,
+                    message: "Request not found or expired"
+                });
+            }
+
+            const game_id = request_turn.game.id;
+            console.log(sender_id, receiver_id);
+            const receiver_game_turn = await GameTurns.findOne({ where: { game_id: game_id, customer_id: receiver_id } });
+            const sender_game_turn = await GameTurns.findOne({ where: { game_id: game_id, customer_id: sender_id } });
+            console.log(receiver_game_turn, sender_game_turn);
+
+            if (receiver_game_turn && receiver_game_turn.quantity <= 0) {
+                return res.status(400).json({
+                    ok: false,
+                    message: "No available turns"
+                });
+            }
+            
+            request_turn.status = TripleStatus.ACCEPTED;
+            await request_turn.save();
+
+            if (sender_game_turn) {
+                sender_game_turn.quantity += 1;
+                await sender_game_turn.save();
+            }
+
+            if (receiver_game_turn) {
+                receiver_game_turn.quantity -= 1;
+                await receiver_game_turn.save();
+            }
+
+            const data = { request_turn, receiver_game_turn };
+            
+            return res.status(200).json({ 
+                ok: true,
+                message: "Accept request success!",
+                data: data 
+            });
+
+        } catch (error: any) {
+            console.log(error);
+            logger.error(error.message);
+            next(error);
+        }
+    }
+
+    async rejectGameTurn(req: Request, res: Response, next: NextFunction) {
+        try {
+            const _req = req as CustomUserRequest;
+            const receiver_id = _req.user.uid;
+            const { sender_id, request_turn_id } = req.body;
+            
+            if (!sender_id || !receiver_id || !request_turn_id) {
+                return res.status(400).json({
+                    ok: "false",
+                    message: "Invalid data"
+                });
+            }
+
+            const request_turn = await RequestTurn.findOne({where: {id: request_turn_id}});
+            if (!request_turn) {
+                return res.status(400).json({
+                    ok: false,
+                    message: "Request not found"
+                });
+            }
+
+            request_turn.status = TripleStatus.REJECTED;
+            await request_turn.save();
+
+            const data = { request_turn };
+            
+            return res.status(200).json({ 
+                ok: true,
+                message: "Reject request success!",
+                data: data 
+            });
+
+        } catch (error: any) {
+            console.log(error);
             logger.error(error.message);
             next(error);
         }

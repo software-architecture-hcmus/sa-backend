@@ -12,6 +12,7 @@ import business from './business.r';
 import voucher from './voucher.r'
 import favourites from './favourite.r';
 import notifications from './notifications.r';
+import historyR from "./history.r";
 import { API_VERSION } from "../shared/constants/api-version.constant";
 
 const initRoutes = async (app: Express) => {
@@ -24,6 +25,7 @@ const initRoutes = async (app: Express) => {
     app.use(`/api/${API_VERSION.V1}/vouchers`, voucher);
     app.use(`/api/${API_VERSION.V1}/favourites`, favourites);
     app.use(`/api/${API_VERSION.V1}/notifications`, notifications);
+    app.use(`/api/${API_VERSION.V1}/history`, historyR);
     app.use('*', notFoundMiddleware);
     app.use(filterExceptionMiddleware);
 }

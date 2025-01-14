@@ -108,7 +108,7 @@ class VoucherController {
             transactionEntity.transaction_time = currentDate;
 
             await entityManager.save(customerVoucher);
-            await entityManager.update(Transaction, { customer_voucher: {id: customerVoucher.id} }, { status: TripleStatus.EXPIRED });
+            await entityManager.update(Transaction, { customer_voucher: {id: customerVoucher.id}, status: TripleStatus.PENDING }, { status: TripleStatus.EXPIRED });
             await entityManager.save(transactionEntity);
             
             return res.status(200).json({

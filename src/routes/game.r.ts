@@ -13,6 +13,9 @@ router.put('/score', gameController.updateScoreGameOfCustomer)
 router.get('/', gameController.getAll);
 router.get('/event/:id', gameController.getGameByEventId);
 router.post('/', gameController.createGame);
+router.post('/request-game-turn', gameController.requestGameTurn);
+router.post('/accept-game-turn', gameController.acceptGameTurn);
+router.post('/reject-game-turn', gameController.rejectGameTurn);
 router.post('/:id', gameController.saveResult);
 router.post('/quiz/question', gameController.createQuestion)
 router.put('/default', uploadSingle('image'), gameController.updateDefault);

@@ -9,7 +9,8 @@ import { GameRooms } from "../../database/entities/game_rooms.entity";
 import { GameResults } from "../../database/entities/game_results.entity";
 import { Voucher } from "../../database/entities/voucher.entity";
 import { CustomerVoucher } from "../../database/entities/customer_vouchers.entity";
-
+import { RequestTurn } from "../../database/entities/request_turns.entity";
+import { TripleStatus } from "../../database/enums/triple-status.enum";
 class GameService {
     private readonly gameRepository: Repository<Games>;
     private readonly defaultGameRepository: Repository<DefaultGames>;
@@ -19,6 +20,8 @@ class GameService {
     private readonly gameRoomRepository: Repository<GameRooms>;
     private readonly gameResultRepository: Repository<GameResults>;
     private readonly voucherCustomerRepository: Repository<CustomerVoucher>
+    private readonly requestTurnRepository: Repository<RequestTurn>;
+
     constructor() {
         this.gameRepository = DatabaseService.getInstance().getRepository(Games);
         this.defaultGameRepository = DatabaseService.getInstance().getRepository(DefaultGames);
@@ -28,13 +31,15 @@ class GameService {
         this.gameRoomRepository = DatabaseService.getInstance().getRepository(GameRooms);
         this.gameResultRepository = DatabaseService.getInstance().getRepository(GameResults);
         this.voucherCustomerRepository = DatabaseService.getInstance().getRepository(CustomerVoucher)
+        this.requestTurnRepository = DatabaseService.getInstance().getRepository(RequestTurn);
     }
     async getById(id: string) {
-        return await this.gameRepository.findOne({ where: { id },
+        return await this.gameRepository.findOne({
+            where: { id },
             relations: {
                 default_game: true,
                 rooms: {
-                    questions:{
+                    questions: {
                         answers: true,
                         solution: true
                     }
@@ -45,25 +50,25 @@ class GameService {
         });
     }
 
-    async getAll({ branch_id } : {branch_id: string}) {
+    async getAll({ branch_id }: { branch_id: string }) {
         return await this.gameRepository.find(
             {
-                where:{
-                    event:{
-                        brand_id:branch_id
+                where: {
+                    event: {
+                        brand_id: branch_id
                     }
                 }
             }
         );
     }
 
-    async createGameQuiz( createGameData: any) {
+    async createGameQuiz(createGameData: any) {
         const type = createGameData.type;
         const defaultGame = await this.defaultGameRepository.findOne({ where: { game_type: { id: type } } });
         if (!defaultGame) {
             throw new Error("Game type not found");
         }
-        const game =  this.gameRepository.create({
+        const game = this.gameRepository.create({
             name: createGameData.name || defaultGame.name,
             image: createGameData.image || defaultGame.image,
             allow_voucher_exchange: createGameData.allow_voucher_exchange || defaultGame.allow_voucher_exchange,
@@ -85,17 +90,17 @@ class GameService {
             const questionData = questions[i];
             const question = this.quizQuestionsRepository.create({
                 content: questionData.content,
-                image: questionData.image && questionData.image.length > 0 ?  questionData.image : "",
+                image: questionData.image && questionData.image.length > 0 ? questionData.image : "",
                 cooldown: questionData.cooldown,
                 time: questionData.time,
                 games: gameRoom,
                 position: i
             });
             await this.quizQuestionsRepository.save(question);
-    
-            const answers : QuizAnswers[]  = [];
+
+            const answers: QuizAnswers[] = [];
             for (const answerData of questionData.answers) {
-                const answer =  this.quizAnswersRepository.create(
+                const answer = this.quizAnswersRepository.create(
                     {
                         content: answerData.content,
                         question: question,
@@ -104,7 +109,7 @@ class GameService {
                 await this.quizAnswersRepository.save(answer);
                 answers.push(answer);
             }
-    
+
             question.answers = answers;
             question.solution = answers[questionData.solution];
 
@@ -113,13 +118,13 @@ class GameService {
         return game;
     }
 
-    async createGameFlappyBird( createGameData: any, ) {
+    async createGameFlappyBird(createGameData: any,) {
         const type = createGameData.type;
         const defaultGame = await this.defaultGameRepository.findOne({ where: { game_type: { id: type } } });
         if (!defaultGame) {
             throw new Error("Game type not found");
         }
-        const game =  this.gameRepository.create({
+        const game = this.gameRepository.create({
             name: createGameData.name || defaultGame.name,
             image: createGameData.image || defaultGame.image,
             allow_voucher_exchange: createGameData.allow_voucher_exchange || defaultGame.allow_voucher_exchange,
@@ -140,22 +145,22 @@ class GameService {
     }
 
     async saveResult() {
-        
+
     }
 
     async createQuestion() {
-       
+
     }
 
     async deleteQuestion() {
-       
+
     }
 
     async updateQuestion() {
-       
+
     }
 
-    async getDefault() {    
+    async getDefault() {
         return await this.defaultGameRepository.find();
     }
 
@@ -174,163 +179,162 @@ class GameService {
         });
         return await this.defaultGameRepository.save(defaultGame);
     }
-    
-    async getGameByEventId({ id }: {id: string})
-    {
+
+    async getGameByEventId({ id }: { id: string }) {
         return await this.gameRepository.find({
-            where:{
+            where: {
                 event: {
                     id: id
                 },
             },
-            relations:{
+            relations: {
                 default_game: true
             }
         })
     }
 
-    async getGameTurnCustomer({id, customer_id}: {id:string, customer_id: string})
-    {
-        const game= await this.gameRepository.findOne({
-            where:{
+    async getGameTurnCustomer({ id, customer_id }: { id: string, customer_id: string }) {
+        const game = await this.gameRepository.findOne({
+            where: {
                 id: id
             },
-            relations:{
-                default_game:{
+            relations: {
+                default_game: {
                     game_type: true
                 }
             }
         })
-        if(!game)
-            return {turn: 0, maxScore: 0, voucher: null};
+        if (!game)
+            return { turn: 0, maxScore: 0, voucher: null };
         let gameTurn = await this.gameTurnsRepository.findOne({
-            where:{
-                games:{
+            where: {
+                games: {
                     id: id
                 },
                 customer_id: customer_id
             }
         })
-        if(!gameTurn)
-        {
+        if (!gameTurn) {
             const typeGame = game.default_game?.game_type?.id;
-            if(typeGame === "FLAPPYBIRD")
-            {
+            if (typeGame === "FLAPPYBIRD") {
                 gameTurn = new GameTurns()
                 gameTurn.game_id = game.id;
                 gameTurn.customer_id = customer_id;
                 gameTurn.quantity = 10
                 await this.gameTurnsRepository.save(gameTurn)
             }
-            else if(typeGame === "QUIZ")
-            {
+            else if (typeGame === "QUIZ") {
                 gameTurn = new GameTurns()
                 gameTurn.game_id = game.id;
                 gameTurn.customer_id = customer_id;
                 gameTurn.quantity = 1
                 await this.gameTurnsRepository.save(gameTurn)
             }
-            else{
-                return {turn: 0, maxScore: 0, voucher: null};
+            else {
+                return { turn: 0, maxScore: 0, voucher: null };
             }
         }
         const gameResult = await this.gameResultRepository.findOne({
-            where:{
+            where: {
                 customer_id: customer_id,
-                game_room:{
-                    games:{
-                        id:id
+                game_room: {
+                    games: {
+                        id: id
                     }
                 }
             }
         })
-        if(!gameResult)
-        {
-            return {turn: gameTurn.quantity, maxScore: 0, voucher: null};
+        if (!gameResult) {
+            return { turn: gameTurn.quantity, maxScore: 0, voucher: null };
         }
         const customerVoucher = await this.voucherCustomerRepository.findOne({
-            where:{
+            where: {
                 customer_id: customer_id,
-                game_result:{
+                game_result: {
                     id: gameResult.id
                 }
             },
-            relations:{
+            relations: {
                 voucher: true
             }
         })
-        if(!customerVoucher || !customerVoucher.voucher)
-        {
-            return {turn: gameTurn.quantity, maxScore: gameResult.score,  voucher: null};
+        if (!customerVoucher || !customerVoucher.voucher) {
+            return { turn: gameTurn.quantity, maxScore: gameResult.score, voucher: null };
         }
-        return {turn: gameTurn.quantity, maxScore: gameResult.score,  voucher: customerVoucher.voucher};
-        
+        return { turn: gameTurn.quantity, maxScore: gameResult.score, voucher: customerVoucher.voucher };
+
     }
 
-    async updateGameTurnCustomer({customer_id, gameID, turn})
-    {
-        const game= await this.gameRepository.findOne({
-            where:{
+    async updateGameTurnCustomer({ customer_id, gameID, turn }) {
+        const game = await this.gameRepository.findOne({
+            where: {
                 id: gameID
             }
         })
         console.log(game);
-        if(!game)
-        {
+        if (!game) {
             return false
         }
         const gameTurn = await this.gameTurnsRepository.findOne({
-            where:{
-                games:{
+            where: {
+                games: {
                     id: gameID
                 },
                 customer_id: customer_id
             }
         })
         console.log(gameTurn);
-        if(!gameTurn || !Number(turn) || Number(turn) <0  )
-        {
+        if (!gameTurn || !Number(turn) || Number(turn) < 0) {
             return false
         }
         gameTurn.quantity = Number(turn)
         await this.gameTurnsRepository.save(gameTurn);
         return true;
-        
+
     }
-    async updateScoreGameOfCustomer({customer_id, gameID, score})
-    {
+    async updateScoreGameOfCustomer({ customer_id, gameID, score }) {
         const gameRoom = await this.gameRoomRepository.findOne({
-            where:{
-                games:{
+            where: {
+                games: {
                     id: gameID
                 }
             }
         })
-        if(!gameRoom)
-        {
+        if (!gameRoom) {
             return false
         }
         let gameResult = await this.gameResultRepository.findOne({
-            where:{
+            where: {
                 customer_id: customer_id,
-                game_room:{
+                game_room: {
                     id: gameRoom.id
                 }
             }
         })
-        if(!gameResult)
-        {
+        if (!gameResult) {
             gameResult = new GameResults()
             gameResult.customer_id = customer_id;
             gameResult.game_room = gameRoom;
-            gameResult.score = Number(score)? Number(score): 0
+            gameResult.score = Number(score) ? Number(score) : 0
             await this.gameResultRepository.save(gameResult)
         }
-        else{
-            gameResult.score =  Number(score)? Number(score): 0
+        else {
+            gameResult.score = Number(score) ? Number(score) : 0
             await this.gameResultRepository.save(gameResult)
         }
         return true;
+    }
+
+    async addGameTurn(sender_id, receiver_id, game) {
+        const request_turn = this.requestTurnRepository.create({
+            status: TripleStatus.PENDING,
+            sender_id: sender_id,
+            receiver_id: receiver_id,
+            game: game,
+        });
+
+        await this.requestTurnRepository.save(request_turn);
+        return request_turn;
     }
 }
 

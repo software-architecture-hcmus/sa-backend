@@ -120,8 +120,7 @@ class CustomerVoucherService {
 
             const transactions = await this.transactionRepository.find({ where: { customer_voucher: {id: customer_voucher_id}, status: TripleStatus.PENDING } });
             for (const transaction of transactions) {
-                transaction.status = TripleStatus.REJECTED;
-                transaction.transaction_time = new Date();
+                transaction.status = TripleStatus.EXPIRED;
                 await queryRunner.manager.save(transaction);
             }
 

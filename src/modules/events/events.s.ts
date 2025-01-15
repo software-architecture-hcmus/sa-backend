@@ -40,15 +40,15 @@ export class EventsService {
             return voucher.total_codes;
         });
 
+        const savedVouchers = await this.voucherRepository.save(vouchersData);
+
         if (codesToGenerate.length > 0) {
             codesToGenerate.forEach(async (code, index) => {
                 const newVoucherCodes = Array.from({ length: code }, () => generateRandomCode());
-                const newVoucherCodesData = newVoucherCodes.map(code => ({ code, event: savedEvent }));
+                const newVoucherCodesData = newVoucherCodes.map(code => ({ code, voucher: savedVouchers[index] }));
                 await this.voucherCodeRepository.save(newVoucherCodesData);
             });
         }
-
-        await this.voucherRepository.save(vouchersData);
 
         return eventData;
     }
@@ -120,7 +120,7 @@ export class EventsService {
             if (codesToGenerate.length > 0) {
                 codesToGenerate.forEach(async (code, index) => {
                     const newVoucherCodes = Array.from({ length: code }, () => generateRandomCode());
-                    const newVoucherCodesData = newVoucherCodes.map(code => ({ code, event: mergedEvent }));
+                    const newVoucherCodesData = newVoucherCodes.map(code => ({ code, voucher: mergedEvent.vouchers[index] }));
                     const savedVoucherCodes = await this.voucherCodeRepository.save(newVoucherCodesData);
                     console.log(savedVoucherCodes);
                 });

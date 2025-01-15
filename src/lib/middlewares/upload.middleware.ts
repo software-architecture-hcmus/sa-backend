@@ -15,7 +15,6 @@ export const uploadSingle = (fieldName: string) => {
             try {
                 // If there's a file in the request, upload it to Azure
                 if (req.file) {
-                    console.log(req.file);
                     const fileUrl = await azureStorageService.uploadFile(req.file);
                     req.body[fieldName] = fileUrl;
                 }
